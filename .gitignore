@@ -1,0 +1,4 @@
+ __pycache__/ *.pyc
+  curriculum_seed.sql s
+  ynthetic_students_seed.sql 
+  .env
