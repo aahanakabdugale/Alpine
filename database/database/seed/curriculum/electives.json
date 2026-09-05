@@ -1,0 +1,126 @@
+[
+  {
+    "name": "Advanced Database Technologies",
+    "category": "elective",
+    "group_name": "open_elective",
+    "modules": [
+      {
+        "name": "Query Processing and Optimization",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Query Processing Steps and Cost Measures", "type": "concept"},
+          {"name": "Selection, Sorting, Join Operations", "type": "problem_solving"},
+          {"name": "Query Optimization Approaches and Evaluation Plans", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Advanced Database Systems",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Object-Oriented Databases and Data Model", "type": "concept"},
+          {"name": "Spatial Databases", "type": "concept"},
+          {"name": "Temporal, Active, Deductive and Mobile Databases", "type": "concept"},
+          {"name": "Multimedia Databases", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Distributed Databases",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Distributed Data Processing and Architecture", "type": "concept"},
+          {"name": "Data Fragmentation and Allocation", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Data Warehousing, Dimensional Modelling and OLAP",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Data Warehouse Architecture and Design Strategies", "type": "concept"},
+          {"name": "Star Schema, Snowflake Schema, Fact/Dimension Tables", "type": "concept"},
+          {"name": "OLAP Operations (Roll-up, Drill-down, Slice, Dice, Pivot)", "type": "problem_solving"},
+          {"name": "OLAP Architectures (MOLAP, ROLAP, DOLAP, HOLAP)", "type": "concept"}
+        ]
+      },
+      {
+        "name": "ETL Process",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Data Extraction Techniques", "type": "concept"},
+          {"name": "Data Transformation and Loading", "type": "problem_solving"}
+        ]
+      },
+      {
+        "name": "NoSQL Databases",
+        "phase": "UT2",
+        "topics": [
+          {"name": "NoSQL, CAP Theorem, BASE Property", "type": "concept"},
+          {"name": "NoSQL Data Architecture Patterns", "type": "concept"},
+          {"name": "MongoDB Operations", "type": "problem_solving"},
+          {"name": "Cassandra Data Model and CQL", "type": "problem_solving"}
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Cyber Security",
+    "category": "elective",
+    "group_name": "open_elective",
+    "modules": [
+      {
+        "name": "Cyber Security and Threats",
+        "phase": "UT1",
+        "topics": [
+          {"name": "CIA Triad and Security Principles", "type": "concept"},
+          {"name": "Types of Cyber Attacks and Malware", "type": "concept"},
+          {"name": "Advanced Persistent Threats and Cyber Kill Chain", "type": "concept"},
+          {"name": "AI in Cyber Security (Threat/Malware/Phishing Detection)", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Cryptography and Secure Communication",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Symmetric Key Cryptography (AES, DES)", "type": "concept"},
+          {"name": "Asymmetric Key Cryptography (RSA, ECC)", "type": "concept"},
+          {"name": "Hash Functions and Password Hashing", "type": "concept"},
+          {"name": "Digital Signatures and PKI", "type": "concept"},
+          {"name": "Secure Communication Protocols (TLS, VPN, IPsec)", "type": "concept"}
+        ]
+      },
+      {
+        "name": "System Security and Cloud Security",
+        "phase": "UT1",
+        "topics": [
+          {"name": "OS Security and Access Control Models (DAC, MAC, RBAC)", "type": "concept"},
+          {"name": "Authentication Methods and MFA", "type": "concept"},
+          {"name": "Password Security and Patch Management", "type": "concept"},
+          {"name": "Cloud Security Fundamentals (IaaS, PaaS, SaaS, IAM)", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Web Application Security",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Web Architecture, Session Management, CSP", "type": "concept"},
+          {"name": "OWASP Top 10 Vulnerabilities", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Network Security",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Firewalls and IDS/IPS", "type": "concept"},
+          {"name": "Network Attacks (DoS/DDoS, MITM, ARP Spoofing)", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Cyber Laws and Ethics",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Security Standards and Frameworks (ISO 27001, NIST, HIPAA, PCI-DSS)", "type": "concept"},
+          {"name": "Cyber Laws Fundamentals and IPR", "type": "concept"}
+        ]
+      }
+    ]
+  }
+]

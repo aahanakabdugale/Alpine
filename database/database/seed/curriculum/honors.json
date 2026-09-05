@@ -1,0 +1,119 @@
+[
+  {
+    "name": "Mathematics for AI & ML",
+    "category": "honors",
+    "group_name": "honors",
+    "modules": [
+      {
+        "name": "Linear Algebra",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Vectors, Matrices, Solving Linear Equations", "type": "concept"},
+          {"name": "Fundamental Subspaces, Eigenvalues and Eigenvectors", "type": "concept"},
+          {"name": "Singular Value Decomposition (SVD)", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Probability and Statistics",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Random Variables and Probability Distributions", "type": "concept"},
+          {"name": "Random Sampling and Sample Distributions", "type": "concept"},
+          {"name": "Chi-Square, t-, and F-Distributions", "type": "concept"},
+          {"name": "Central Limit Theorem", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Introduction to Graphs",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Quantitative vs Qualitative Data Types", "type": "concept"},
+          {"name": "Data Plotting Techniques", "type": "problem_solving"}
+        ]
+      },
+      {
+        "name": "Exploratory Data Analysis",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Data Cleaning and Feature Engineering", "type": "problem_solving"},
+          {"name": "Missing Value Handling and Model Selection", "type": "problem_solving"}
+        ]
+      },
+      {
+        "name": "Optimization Techniques",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Constrained vs Unconstrained Optimization", "type": "concept"},
+          {"name": "Numerical Optimization Methods (Bisection, Newton's, Steepest Descent)", "type": "problem_solving"}
+        ]
+      },
+      {
+        "name": "Dimension Reduction Algorithms",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Linear Dimensionality Reduction (PCA, Factor Analysis, LDA)", "type": "concept"},
+          {"name": "Non-Linear Dimensionality Reduction (MDS, Isomap)", "type": "concept"}
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Ethical Hacking",
+    "category": "honors",
+    "group_name": "honors",
+    "modules": [
+      {
+        "name": "Introduction to Ethical Hacking",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Computer Networks and IP Protocol Stack", "type": "concept"},
+          {"name": "IP Addressing, Routing and Protocol Vulnerabilities", "type": "concept"},
+          {"name": "Steps of Ethical Hacking", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Introduction to Cryptography",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Private-key and Public-key Encryption", "type": "concept"},
+          {"name": "Key Exchange Protocols and Hash Functions", "type": "concept"},
+          {"name": "Steganography and Biometric Authentication", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Introduction to Network Security",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Information Gathering, Reconnaissance, Vulnerability Assessment", "type": "problem_solving"},
+          {"name": "System Hacking (Password Cracking, Penetration Testing)", "type": "problem_solving"},
+          {"name": "Social Engineering and Malware Threats", "type": "concept"},
+          {"name": "Wireless Network Hacking (WEP, WPA, WPA-2)", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Introduction to Web Security and Attacks",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Web Security Fundamentals (Auth, Cookies, SSL/HTTPS)", "type": "concept"},
+          {"name": "Common Web Attacks (Clickjacking, XSS, CSRF, Session Hijacking)", "type": "problem_solving"},
+          {"name": "SQL Injection and Vulnerability Assessments", "type": "problem_solving"}
+        ]
+      },
+      {
+        "name": "Elements of Hardware Security",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Side Channel Attacks and Physical Unclonable Functions", "type": "concept"},
+          {"name": "Firewalls, IDS and Honeypots", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Case Studies",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Attack Scenarios and Remedies", "type": "project"}
+        ]
+      }
+    ]
+  }
+]

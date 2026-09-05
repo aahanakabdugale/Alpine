@@ -1,0 +1,11 @@
+{
+  "_comment": "Keyed by exact subject name as it appears in the curriculum JSON files.",
+  "Software Engineering and Agile Practices":     {"UT1": "2026-08-24", "UT2": "2026-10-13", "end_sem": "2026-11-10"},
+  "Advanced Database Technologies":               {"UT1": "2026-08-24", "UT2": "2026-10-13", "end_sem": "2026-11-14"},
+  "Cyber Security":                               {"UT1": "2026-08-24", "UT2": "2026-10-13", "end_sem": "2026-11-14"},
+  "Artificial Intelligence and Machine Learning": {"UT1": "2026-08-25", "UT2": "2026-10-14", "end_sem": "2026-11-12"},
+  "Web Technology":                               {"UT1": "2026-08-25", "UT2": "2026-10-14", "end_sem": "2026-11-16"},
+  "Multidisciplinary Minor (Embedded Systems and RTOS)": {"UT1": "2026-08-31", "UT2": "2026-10-15", "end_sem": "2026-11-18"},
+  "Mathematics for AI & ML":                      {"UT1": "2026-08-31", "UT2": "2026-10-15", "end_sem": "2026-11-20"},
+  "Ethical Hacking":                              {"UT1": "2026-08-31", "UT2": "2026-10-15", "end_sem": "2026-11-20"}
+}

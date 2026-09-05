@@ -1,0 +1,253 @@
+[
+  {
+    "name": "Software Engineering and Agile Practices",
+    "category": "core",
+    "group_name": null,
+    "modules": [
+      {
+        "name": "Introduction to Software Engineering",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Nature of Software and Software Engineering", "type": "concept"},
+          {"name": "Software Process and Generic Process Model", "type": "concept"},
+          {"name": "Prescriptive Process Models", "type": "concept",
+           "subtopics": ["Waterfall Model", "V-Model", "Incremental Process Models", "Evolutionary Process Models", "Concurrent Models"]}
+        ]
+      },
+      {
+        "name": "Requirement Engineering and Design Engineering",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Software Requirements and Requirement Engineering", "type": "concept"},
+          {"name": "Software Requirement Specification (SRS)", "type": "concept"},
+          {"name": "Design Principles (Modularity, Abstraction, Coupling, Cohesion)", "type": "concept"},
+          {"name": "Software Architecture Styles (Layered, MVC, Client-Server)", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Software Project Management",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Software Project Estimation (LOC, FP, COCOMO II)", "type": "problem_solving"},
+          {"name": "Project Scheduling and Tracking", "type": "problem_solving"}
+        ]
+      },
+      {
+        "name": "Software Risk and Configuration Management",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Risk Identification, Assessment and RMMM", "type": "concept"},
+          {"name": "Software Configuration Management (SCM)", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Software Testing and Maintenance",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Levels of Testing (Unit, Integration, System, Acceptance)", "type": "concept"},
+          {"name": "Static and Dynamic Testing Techniques", "type": "concept"},
+          {"name": "Software Quality Assurance and Metrics", "type": "concept"},
+          {"name": "Software Maintenance Types and Reengineering", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Agile Methodologies and Emerging Trends",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Agile Manifesto and Scrum Framework", "type": "concept"},
+          {"name": "Kanban, Lean and Extreme Programming (XP)", "type": "concept"},
+          {"name": "Agile Metrics and Project Tracking", "type": "concept"},
+          {"name": "DevOps and DevSecOps Lifecycle", "type": "concept"}
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Artificial Intelligence and Machine Learning",
+    "category": "core",
+    "group_name": null,
+    "modules": [
+      {
+        "name": "Introduction to Artificial Intelligence",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Definition, Scope and Applications of AI", "type": "concept"},
+          {"name": "Intelligent Agents: Types and Architectures", "type": "concept"},
+          {"name": "Problem Formulation in AI", "type": "concept"},
+          {"name": "AI vs ML vs DL", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Problem Solving and Search Strategies",
+        "phase": "UT1",
+        "topics": [
+          {"name": "State Space Representation", "type": "concept"},
+          {"name": "Uninformed Search (BFS, DFS, UCS)", "type": "problem_solving"},
+          {"name": "Informed Search (Greedy, A*, Heuristics)", "type": "problem_solving"},
+          {"name": "Constraint Satisfaction Problems", "type": "problem_solving"}
+        ]
+      },
+      {
+        "name": "Supervised Learning",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Regression (Linear, Multiple)", "type": "problem_solving"},
+          {"name": "Classification (Logistic Regression, k-NN, Decision Trees, Random Forest, SVM)", "type": "problem_solving"},
+          {"name": "Regularization and Bias-Variance Tradeoff", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Unsupervised Learning",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Clustering (K-Means, Hierarchical)", "type": "problem_solving"},
+          {"name": "Association Rule Mining (Apriori)", "type": "problem_solving"},
+          {"name": "Dimensionality Reduction (PCA, GMM)", "type": "problem_solving"}
+        ]
+      },
+      {
+        "name": "Model Evaluation and Optimization",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Training, Validation, Testing and Cross-Validation", "type": "concept"},
+          {"name": "Confusion Matrix, Accuracy, Precision, Recall, F1", "type": "problem_solving"},
+          {"name": "ROC Curve, AUC, Overfitting and Underfitting", "type": "concept"},
+          {"name": "Hyperparameter Tuning", "type": "problem_solving"}
+        ]
+      },
+      {
+        "name": "Ethics, Emerging Trends and Applications",
+        "phase": "UT2",
+        "topics": [
+          {"name": "AI Ethics, Bias, Fairness and Explainable AI", "type": "concept"},
+          {"name": "Generative AI and Introduction to Deep Learning", "type": "concept"},
+          {"name": "AI Applications (Healthcare, Finance, Smart Cities)", "type": "concept"}
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Web Technology",
+    "category": "core",
+    "group_name": null,
+    "modules": [
+      {
+        "name": "Introduction to JavaScript",
+        "phase": "UT1",
+        "topics": [
+          {"name": "JS Basics: Variables, Scopes, Data Types, Functions, Arrays", "type": "concept"},
+          {"name": "ES6 vs ES5, Arrow Functions, Events", "type": "concept"},
+          {"name": "Client-side Form Validation", "type": "problem_solving"}
+        ]
+      },
+      {
+        "name": "React",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Introduction to MERN Stack and React Installation", "type": "concept"},
+          {"name": "Components, State and Props", "type": "concept"},
+          {"name": "React Router and Single Page Applications", "type": "concept"},
+          {"name": "Forms, Events, Animations, Best Practices", "type": "problem_solving"}
+        ]
+      },
+      {
+        "name": "Advanced React",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Functional Components, Refs and Hooks", "type": "concept"},
+          {"name": "Flow Architecture, MVC and Flux", "type": "concept"},
+          {"name": "Bundling and Webpack", "type": "concept"}
+        ]
+      },
+      {
+        "name": "MongoDB",
+        "phase": "UT2",
+        "topics": [
+          {"name": "MongoDB Basics and Data Types", "type": "concept"},
+          {"name": "CRUD Operations", "type": "problem_solving"},
+          {"name": "Mongoose Schema and Validation", "type": "problem_solving"},
+          {"name": "Web Security Basics (SQL Injection, XSS)", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Node.js",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Environment Setup and First App", "type": "concept"},
+          {"name": "Asynchronous Programming, Callbacks, Event Loop", "type": "concept"},
+          {"name": "Networking, Buffers, Streams, File System", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Express",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Express Router and REST API", "type": "problem_solving"},
+          {"name": "Authentication and Sessions", "type": "concept"},
+          {"name": "Integrating Express with React", "type": "project"}
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Multidisciplinary Minor (Embedded Systems and RTOS)",
+    "category": "core",
+    "group_name": null,
+    "modules": [
+      {
+        "name": "Introduction to Embedded Systems and Fundamentals of Embedded Programming",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Embedded Systems Definition, Characteristics and Classification", "type": "concept"},
+          {"name": "Design Metrics and Optimization Challenges", "type": "concept"},
+          {"name": "Embedded C Fundamentals (Data Types, Modifiers, Bit Operations, ISR)", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Embedded Processors",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Embedded Cores (uC, ASIC, ASSP, SoC, FPGA, RISC vs CISC) and Memory Types", "type": "concept"},
+          {"name": "ARM Cortex-M3 Architecture and Features", "type": "concept"},
+          {"name": "Low Power Design Techniques", "type": "concept"},
+          {"name": "Comparison of A/R/M Series and ATMEGA 328P", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Interfacing Analog and Digital Devices",
+        "phase": "UT1",
+        "topics": [
+          {"name": "Interfacing Analog and Digital Input Devices", "type": "problem_solving"},
+          {"name": "Interfacing Analog and Digital Output Devices", "type": "problem_solving"},
+          {"name": "Signal Conditioning (Amplifiers, Filters)", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Embedded Communication Interfaces",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Wired Communication Interfaces (UART, SPI, I2C, CAN bus)", "type": "concept"},
+          {"name": "Wireless Communication Interfaces (USB, Bluetooth, ZigBee, RFID)", "type": "concept"}
+        ]
+      },
+      {
+        "name": "Real Time Operating Systems",
+        "phase": "UT2",
+        "topics": [
+          {"name": "RTOS Fundamentals and Task Scheduling Algorithms", "type": "concept"},
+          {"name": "Inter-process Communication (Message Queues, Mailbox, Event Timers)", "type": "concept"},
+          {"name": "Task Synchronization (Mutex, Semaphores, Deadlock, Race Condition)", "type": "concept"}
+        ]
+      },
+      {
+        "name": "System Integration and Design",
+        "phase": "UT2",
+        "topics": [
+          {"name": "Embedded Product Design Life-Cycle (EDLC)", "type": "concept"},
+          {"name": "Testing and Debugging Methodology", "type": "concept"},
+          {"name": "Example Applications (Vending Machine, Smart Cards, etc.)", "type": "project"}
+        ]
+      }
+    ]
+  }
+]
