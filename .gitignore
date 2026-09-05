@@ -2,3 +2,7 @@
   curriculum_seed.sql s
   ynthetic_students_seed.sql 
   .env
+
+  database/seed/curriculum_seed.sql
+database/synthetic/synthetic_students_seed.sql
+database/synthetic/__pycache__/
