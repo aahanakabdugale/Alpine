@@ -2,9 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: #e8eef6;
-  color: #1e293b;
-  min-height: 100vh;
-  font-family: system-ui, -apple-system, sans-serif;
+@layer base {
+  body {
+    @apply bg-[#F0FFF4] text-[#1F2937] dark:bg-[#0E2A26] dark:text-[#E6FFED] transition-colors duration-300;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
 }

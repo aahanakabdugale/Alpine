@@ -1,9 +1,33 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Calendar, Target, Clock, AlertCircle, RefreshCw, Sparkles, CheckCircle2 } from 'lucide-react';
+import { motion, type Variants } from 'framer-motion';
 import { apiClient } from '@/lib/api';
 import { ClayStudyCard } from '@/components/dashboard/ClayStudyCard';
 import { useStudentProfiles } from '@/hooks/useStudentProfiles';
 import type { TodayScheduleResponse } from '@/types';
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 350,
+      damping: 24,
+    },
+  },
+};
 
 export function TodayFocus() {
   const { activeProfile } = useStudentProfiles();
@@ -68,7 +92,6 @@ export function TodayFocus() {
   const totalTasks = tasks.length;
   const progressPct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-  // Format today's date
   const todayFormatted = new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
     month: 'short',
@@ -80,16 +103,16 @@ export function TodayFocus() {
       {/* Top Banner / Heading */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-2">
         <div>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 mb-1">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-[#2DD4BF] mb-1">
             <Calendar className="w-3.5 h-3.5" />
             <span>{todayFormatted}</span>
           </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-black text-[#1F2937] dark:text-[#E6FFED] tracking-tight">
             Today's Focus
           </h1>
-          <p className="text-sm text-slate-600 mt-1">
+          <p className="text-sm text-teal-900/70 dark:text-[#99F6E4]/70 mt-1">
             Adaptive study queue for{' '}
-            <span className="font-semibold text-slate-900">
+            <span className="font-semibold text-[#1F2937] dark:text-[#E6FFED]">
               {activeProfile?.display_name || 'Active Learner'}
             </span>
             . Rate your recall confidence after reviewing to dynamically adjust your schedule.
@@ -100,9 +123,9 @@ export function TodayFocus() {
           type="button"
           onClick={fetchTodaySchedule}
           disabled={loading}
-          className="self-start md:self-auto flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#f0f4f9] border border-white/80 shadow-clay-pill hover:shadow-clay-hover active:shadow-clay-pressed text-xs font-bold text-slate-700 transition-all"
+          className="self-start md:self-auto flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#E6FFED] dark:bg-[#123B35] border border-white/80 dark:border-teal-700/30 shadow-clay-pill dark:shadow-clay-dark-pill hover:shadow-clay-hover dark:hover:shadow-clay-dark-hover active:shadow-clay-pressed dark:active:shadow-clay-dark-pressed text-xs font-bold text-[#1F2937] dark:text-[#E6FFED] transition-all"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-indigo-600' : ''}`} />
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#14BBA6] dark:text-[#2DD4BF]' : ''}`} />
           <span>Refresh Plan</span>
         </button>
       </div>
@@ -110,57 +133,57 @@ export function TodayFocus() {
       {/* Daily Metrics & Capacity Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Planned Hours */}
-        <div className="rounded-3xl bg-[#f0f4f9] border border-white/80 shadow-clay-card p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
+        <div className="rounded-3xl bg-[#E6FFED] dark:bg-[#123B35] shadow-clay-card dark:shadow-clay-dark-card border border-white/80 dark:border-teal-900/40 text-[#1F2937] dark:text-[#E6FFED] p-5 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-teal-100/70 dark:bg-teal-950/80 text-teal-800 dark:text-teal-200 border border-teal-200/50 dark:border-teal-800/40 flex items-center justify-center shrink-0 shadow-inner">
             <Clock className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            <div className="text-xs font-semibold text-teal-900/70 dark:text-[#99F6E4]/70 uppercase tracking-wide">
               Planned Study
             </div>
-            <div className="text-2xl font-black text-slate-900 mt-0.5">
+            <div className="text-2xl font-black text-[#1F2937] dark:text-[#E6FFED] mt-0.5">
               {data ? `${data.scheduled_hours.toFixed(1)} hrs` : '0.0 hrs'}
             </div>
-            <div className="text-[11px] text-slate-500 mt-0.5">
+            <div className="text-[11px] text-teal-900/60 dark:text-[#99F6E4]/60 mt-0.5">
               Calculated by CP-SAT solver
             </div>
           </div>
         </div>
 
         {/* Available Capacity */}
-        <div className="rounded-3xl bg-[#f0f4f9] border border-white/80 shadow-clay-card p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center shrink-0 shadow-inner">
+        <div className="rounded-3xl bg-[#E6FFED] dark:bg-[#123B35] shadow-clay-card dark:shadow-clay-dark-card border border-white/80 dark:border-teal-900/40 text-[#1F2937] dark:text-[#E6FFED] p-5 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-sky-100/70 dark:bg-sky-950/80 text-sky-800 dark:text-sky-200 border border-sky-200/50 dark:border-sky-800/40 flex items-center justify-center shrink-0 shadow-inner">
             <Target className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            <div className="text-xs font-semibold text-teal-900/70 dark:text-[#99F6E4]/70 uppercase tracking-wide">
               Daily Target / Budget
             </div>
-            <div className="text-2xl font-black text-slate-900 mt-0.5">
+            <div className="text-2xl font-black text-[#1F2937] dark:text-[#E6FFED] mt-0.5">
               {data ? `${data.available_hours.toFixed(1)} hrs` : '0.0 hrs'}
             </div>
-            <div className="text-[11px] text-slate-500 mt-0.5">
+            <div className="text-[11px] text-teal-900/60 dark:text-[#99F6E4]/60 mt-0.5">
               Weekly availability capacity
             </div>
           </div>
         </div>
 
         {/* Task Completion Progress */}
-        <div className="rounded-3xl bg-[#f0f4f9] border border-white/80 shadow-clay-card p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 shadow-inner">
+        <div className="rounded-3xl bg-[#E6FFED] dark:bg-[#123B35] shadow-clay-card dark:shadow-clay-dark-card border border-white/80 dark:border-teal-900/40 text-[#1F2937] dark:text-[#E6FFED] p-5 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-100/70 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-200 border border-emerald-200/50 dark:border-emerald-800/40 flex items-center justify-center shrink-0 shadow-inner">
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            <div className="text-xs font-semibold text-teal-900/70 dark:text-[#99F6E4]/70 uppercase tracking-wide">
               Tasks Completed
             </div>
-            <div className="text-2xl font-black text-slate-900 mt-0.5 flex items-baseline gap-2">
+            <div className="text-2xl font-black text-[#1F2937] dark:text-[#E6FFED] mt-0.5 flex items-baseline gap-2">
               <span>{completedTasks} / {totalTasks}</span>
-              <span className="text-xs font-bold text-emerald-600">({progressPct}%)</span>
+              <span className="text-xs font-bold text-teal-700 dark:text-[#2DD4BF]">({progressPct}%)</span>
             </div>
-            <div className="w-full bg-slate-200/80 h-2 rounded-full mt-2 overflow-hidden shadow-inner">
+            <div className="w-full bg-teal-900/10 dark:bg-black/30 h-2 rounded-full mt-2 overflow-hidden shadow-inner">
               <div
-                className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                className="bg-[#14BBA6] dark:bg-[#2DD4BF] h-full rounded-full transition-all duration-500"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
@@ -170,10 +193,10 @@ export function TodayFocus() {
 
       {/* Exam Countdown Badges Section */}
       {data && data.exam_countdowns.length > 0 && (
-        <div className="rounded-3xl bg-[#f0f4f9] border border-white/80 shadow-clay-card p-6">
+        <div className="rounded-3xl bg-[#E6FFED] dark:bg-[#123B35] shadow-clay-card dark:shadow-clay-dark-card border border-white/80 dark:border-teal-900/40 text-[#1F2937] dark:text-[#E6FFED] p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="w-4 h-4 text-indigo-600" />
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700">
+            <Sparkles className="w-4 h-4 text-[#14BBA6] dark:text-[#2DD4BF]" />
+            <h2 className="text-sm font-bold uppercase tracking-wider text-teal-900/80 dark:text-[#99F6E4]/80">
               Upcoming Exam Milestones & Deadlines
             </h2>
           </div>
@@ -186,14 +209,14 @@ export function TodayFocus() {
               return (
                 <div
                   key={`${exam.subject_id}-${exam.exam_type}`}
-                  className="rounded-2xl bg-white/70 border border-white/90 shadow-clay-pill p-3.5 flex items-center justify-between gap-3"
+                  className="rounded-2xl bg-white/70 dark:bg-[#16423C] border border-white/90 dark:border-teal-700/30 shadow-clay-pill dark:shadow-clay-dark-pill p-3.5 flex items-center justify-between gap-3"
                 >
                   <div className="min-w-0">
-                    <div className="text-xs font-bold text-slate-900 truncate">
+                    <div className="text-xs font-bold text-[#1F2937] dark:text-[#E6FFED] truncate">
                       {exam.subject_name}
                     </div>
-                    <div className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-2">
-                      <span className="font-semibold text-indigo-700 uppercase">
+                    <div className="text-[11px] text-teal-900/70 dark:text-[#99F6E4]/70 mt-0.5 flex items-center gap-2">
+                      <span className="font-semibold text-teal-700 dark:text-[#2DD4BF] uppercase">
                         {exam.exam_type}
                       </span>
                       <span>•</span>
@@ -205,10 +228,10 @@ export function TodayFocus() {
                     <span
                       className={`inline-block px-2.5 py-1 rounded-full text-xs font-black shadow-inner ${
                         isUrgent
-                          ? 'bg-rose-100 text-rose-700 border border-rose-200'
+                          ? 'bg-rose-100/80 dark:bg-rose-950/70 text-rose-800 dark:text-rose-200 border border-rose-200/60 dark:border-rose-800/40'
                           : isMedium
-                          ? 'bg-amber-100 text-amber-700 border border-amber-200'
-                          : 'bg-indigo-100 text-indigo-700 border border-indigo-200'
+                          ? 'bg-amber-100/80 dark:bg-amber-950/70 text-amber-800 dark:text-amber-200 border border-amber-200/60 dark:border-amber-800/40'
+                          : 'bg-teal-100/70 dark:bg-teal-950/80 text-teal-800 dark:text-teal-200 border border-teal-200/50 dark:border-teal-800/40'
                       }`}
                     >
                       {exam.days_remaining === 0 ? 'Today!' : `${exam.days_remaining}d left`}
@@ -221,18 +244,18 @@ export function TodayFocus() {
         </div>
       )}
 
-      {/* Today's Tasks Section */}
+      {/* Today's Tasks Section with Staggered Motion */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-xl font-black text-[#1F2937] dark:text-[#E6FFED] tracking-tight">
               Assigned Study Units for Today
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-teal-900/70 dark:text-[#99F6E4]/70 mt-0.5">
               Target units generated by Alpine's CP-SAT solver respecting prerequisite DAG constraints.
             </p>
           </div>
-          <span className="text-xs font-bold px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 shadow-clay-pill">
+          <span className="text-xs font-bold px-3 py-1 rounded-full bg-teal-100/70 dark:bg-teal-950/80 text-teal-800 dark:text-teal-200 border border-teal-200/50 dark:border-teal-800/40 shadow-clay-pill dark:shadow-clay-dark-pill">
             {tasks.length} {tasks.length === 1 ? 'Unit' : 'Units'}
           </span>
         </div>
@@ -243,7 +266,7 @@ export function TodayFocus() {
             {[1, 2].map((i) => (
               <div
                 key={i}
-                className="h-64 rounded-3xl bg-slate-200/60 border border-white/60 shadow-clay-card"
+                className="h-64 rounded-3xl bg-[#E6FFED]/60 dark:bg-[#123B35]/60 border border-white/60 dark:border-teal-900/30 shadow-clay-card dark:shadow-clay-dark-card"
               />
             ))}
           </div>
@@ -251,14 +274,14 @@ export function TodayFocus() {
 
         {/* Error State */}
         {error && (
-          <div className="rounded-3xl bg-rose-50 border border-rose-200 p-6 text-center text-rose-700">
+          <div className="rounded-3xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 p-6 text-center text-rose-700 dark:text-rose-300">
             <AlertCircle className="w-8 h-8 mx-auto mb-2 text-rose-500" />
             <h3 className="font-bold text-sm">Failed to Load Today's Focus</h3>
-            <p className="text-xs mt-1 text-rose-600">{error}</p>
+            <p className="text-xs mt-1 text-rose-600 dark:text-rose-400">{error}</p>
             <button
               type="button"
               onClick={fetchTodaySchedule}
-              className="mt-4 px-4 py-2 rounded-2xl bg-white shadow-clay-pill text-xs font-bold text-rose-700 hover:bg-rose-100"
+              className="mt-4 px-4 py-2 rounded-2xl bg-white dark:bg-[#123B35] shadow-clay-pill text-xs font-bold text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-900/30"
             >
               Try Again
             </button>
@@ -267,30 +290,36 @@ export function TodayFocus() {
 
         {/* Empty Tasks State */}
         {!loading && !error && tasks.length === 0 && (
-          <div className="rounded-3xl bg-[#f0f4f9] border border-white/80 shadow-clay-card p-10 text-center">
-            <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4 shadow-clay-pill">
+          <div className="rounded-3xl bg-[#E6FFED] dark:bg-[#123B35] shadow-clay-card dark:shadow-clay-dark-card border border-white/80 dark:border-teal-900/40 text-[#1F2937] dark:text-[#E6FFED] p-10 text-center">
+            <div className="w-16 h-16 rounded-3xl bg-emerald-100/70 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200/50 dark:border-emerald-800/40 flex items-center justify-center mx-auto mb-4 shadow-clay-pill dark:shadow-clay-dark-pill">
               <CheckCircle2 className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900">
+            <h3 className="text-lg font-bold text-[#1F2937] dark:text-[#E6FFED]">
               No Study Tasks Scheduled Today!
             </h3>
-            <p className="text-sm text-slate-500 max-w-md mx-auto mt-1">
+            <p className="text-sm text-teal-900/70 dark:text-[#99F6E4]/70 max-w-md mx-auto mt-1">
               You are completely up to date with your syllabus milestones, or this is a scheduled rest day according to your weekly availability matrix.
             </p>
           </div>
         )}
 
-        {/* Tasks Grid */}
+        {/* Tasks Staggered Motion Grid */}
         {!loading && tasks.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          >
             {tasks.map((task) => (
-              <ClayStudyCard
-                key={task.id}
-                task={task}
-                onCheckInSuccess={handleCheckInSuccess}
-              />
+              <motion.div key={task.id} variants={itemVariants}>
+                <ClayStudyCard
+                  task={task}
+                  onCheckInSuccess={handleCheckInSuccess}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>
