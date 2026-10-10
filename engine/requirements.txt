@@ -1,0 +1,17 @@
+# ==============================================================================
+# Alpine Adaptive Engine - Requirements
+# ==============================================================================
+
+# Core runtime dependencies
+# Pydantic: Data validation, settings management, and typed data models (PlanRequest, SchedulableUnit, etc.)
+pydantic>=2.5.0
+
+# Google OR-Tools: CP-SAT constraint programming solver for baseline & adaptive schedule optimization
+ortools>=9.8.0
+
+# NetworkX: Graph data structures and algorithms for prerequisite DAG validation and cycle detection
+networkx>=3.0
+
+# Testing and validation dependencies
+# Pytest: Test runner for mechanical guarantees and population-level synthetic student evaluation
+pytest>=8.0.0
