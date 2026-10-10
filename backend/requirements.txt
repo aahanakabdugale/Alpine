@@ -7,3 +7,8 @@ pytest>=8.0.0
 
 # Include Adaptive Engine requirements
 -r ../engine/requirements.txt
+
+# Set Python path to include backend and engine directories
+#$env:PYTHONPATH="backend;."
+# Start the backend server on port 8000
+#uvicorn app.main:app --reload --port 8000
