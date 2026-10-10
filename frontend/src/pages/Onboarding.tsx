@@ -177,24 +177,24 @@ export function Onboarding() {
     <div className="max-w-3xl mx-auto py-6 sm:py-10 space-y-8 px-4 sm:px-6">
       {/* Top Wizard Branding */}
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-teal-100/80 dark:bg-teal-950/80 text-teal-800 dark:text-teal-200 shadow-clay-pill dark:shadow-clay-dark-pill border border-teal-200/50 dark:border-teal-800/40">
-          <GraduationCap className="w-3.5 h-3.5 text-[#14BBA6] dark:text-[#2DD4BF]" />
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary shadow-clay-pill dark:shadow-clay-dark-pill border border-primary/20">
+          <GraduationCap className="w-3.5 h-3.5 text-primary" />
           <span>Profile Onboarding Wizard</span>
         </div>
-        <h1 className="text-3xl font-black text-[#1F2937] dark:text-[#E6FFED] tracking-tight">
+        <h1 className="text-3xl font-black text-text-primary tracking-tight">
           Create Your Learner Profile
         </h1>
-        <p className="text-sm text-teal-900/70 dark:text-[#99F6E4]/70 max-w-lg mx-auto">
+        <p className="text-sm text-text-secondary max-w-lg mx-auto">
           Configure your academic semester track and study availability. Alpine's constraint solver will construct a personalized, exam-aligned study calendar.
         </p>
       </div>
 
       {/* Step Indicator Bar */}
-      <div className="rounded-3xl bg-[#E6FFED] dark:bg-[#123B35] border border-white/80 dark:border-teal-900/40 shadow-clay-card dark:shadow-clay-dark-card p-4">
+      <div className="rounded-3xl bg-surface border border-border shadow-clay-card dark:shadow-clay-dark-card p-4">
         <div className="flex items-center justify-between relative">
-          <div className="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-1 bg-teal-900/10 dark:bg-white/10 -z-0" />
+          <div className="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-1 bg-border/40 -z-0" />
           <div
-            className="absolute left-6 top-1/2 -translate-y-1/2 h-1 bg-[#14BBA6] dark:bg-[#2DD4BF] transition-all duration-300 -z-0"
+            className="absolute left-6 top-1/2 -translate-y-1/2 h-1 bg-primary transition-all duration-300 -z-0"
             style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 88}%` }}
           />
 
@@ -208,10 +208,10 @@ export function Onboarding() {
                 <div
                   className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-xs transition-all duration-200 border ${
                     isCurrent
-                      ? 'bg-[#14BBA6] dark:bg-[#2DD4BF] text-white dark:text-[#0E2A26] border-teal-600/40 dark:border-teal-400/40 shadow-clay-pressed dark:shadow-clay-dark-pressed scale-105'
+                      ? 'bg-primary text-canvas border-primary shadow-clay-pressed dark:shadow-clay-dark-pressed scale-105'
                       : isDone
-                      ? 'bg-emerald-600 text-white border-emerald-700 shadow-clay-pill dark:shadow-clay-dark-pill'
-                      : 'bg-[#E6FFED] dark:bg-[#174841] text-teal-900/60 dark:text-teal-200/60 border-white/80 dark:border-teal-700/30 shadow-clay-pill dark:shadow-clay-dark-pill'
+                      ? 'bg-status-fresh text-white border-status-fresh shadow-clay-pill dark:shadow-clay-dark-pill'
+                      : 'bg-surface-soft text-text-muted border-border shadow-clay-pill dark:shadow-clay-dark-pill'
                   }`}
                 >
                   {isDone ? <CheckCircle2 className="w-5 h-5" /> : <Icon className="w-4 h-4" />}
@@ -219,10 +219,10 @@ export function Onboarding() {
                 <span
                   className={`text-[11px] font-bold mt-1.5 transition-colors ${
                     isCurrent
-                      ? 'text-teal-800 dark:text-[#2DD4BF]'
+                      ? 'text-primary'
                       : isDone
-                      ? 'text-emerald-700 dark:text-emerald-400'
-                      : 'text-teal-900/50 dark:text-teal-300/40'
+                      ? 'text-status-fresh'
+                      : 'text-text-muted'
                   }`}
                 >
                   {s.title}
@@ -234,7 +234,7 @@ export function Onboarding() {
       </div>
 
       {/* Wizard Content Card */}
-      <div className="rounded-3xl bg-[#E6FFED] dark:bg-[#123B35] border border-white/80 dark:border-teal-900/40 shadow-clay-card dark:shadow-clay-dark-card p-6 sm:p-8 min-h-[380px] flex flex-col justify-between">
+      <div className="rounded-3xl bg-surface border border-border shadow-clay-card dark:shadow-clay-dark-card p-6 sm:p-8 min-h-[380px] flex flex-col justify-between">
         <AnimatePresence mode="wait">
           {/* STEP 1: Name / Identity */}
           {currentStep === 1 && (
@@ -247,18 +247,18 @@ export function Onboarding() {
               className="space-y-6"
             >
               <div>
-                <h2 className="text-xl font-bold text-[#1F2937] dark:text-[#E6FFED]">What is your learner name?</h2>
-                <p className="text-xs text-teal-900/70 dark:text-[#99F6E4]/70 mt-1">
+                <h2 className="text-xl font-bold text-text-primary">What is your learner name?</h2>
+                <p className="text-xs text-text-secondary mt-1">
                   Enter your student or persona name. This will be stored locally in SQLite (`alpine.db`).
                 </p>
               </div>
 
               <div className="space-y-3">
-                <label htmlFor="student-name-input" className="block text-xs font-bold uppercase tracking-wider text-teal-900 dark:text-teal-200">
+                <label htmlFor="student-name-input" className="block text-xs font-bold uppercase tracking-wider text-text-primary">
                   Display Name
                 </label>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-teal-100/80 dark:bg-teal-900/60 text-teal-800 dark:text-teal-200 flex items-center justify-center font-black text-lg shadow-inner shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-surface-soft text-primary border border-border flex items-center justify-center font-black text-lg shadow-inner shrink-0">
                     {displayName.trim() ? displayName.trim().charAt(0).toUpperCase() : '?'}
                   </div>
                   <input
@@ -269,14 +269,14 @@ export function Onboarding() {
                     onKeyDown={(e) => e.key === 'Enter' && handleNext()}
                     placeholder="e.g. Jordan (Diligent), Chris (Exam Crammer)..."
                     autoFocus
-                    className="w-full px-4 py-3 rounded-2xl bg-white dark:bg-[#0E2A26] border border-white/90 dark:border-teal-900/30 shadow-clay-pressed dark:shadow-clay-dark-pressed text-sm font-semibold text-[#1F2937] dark:text-[#E6FFED] placeholder-teal-900/40 dark:placeholder-teal-200/40 focus:outline-none focus:ring-2 focus:ring-[#14BBA6]/50"
+                    className="w-full px-4 py-3 rounded-2xl bg-surface-inset border border-border/80 shadow-clay-inset dark:shadow-clay-dark-inset text-sm font-semibold text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
               </div>
 
               {/* Quick-Pick Suggestions */}
               <div className="pt-2">
-                <span className="text-[11px] font-semibold text-teal-900/70 dark:text-[#99F6E4]/70 block mb-2">
+                <span className="text-[11px] font-semibold text-text-muted block mb-2">
                   Quick persona templates:
                 </span>
                 <div className="flex flex-wrap gap-2">
@@ -290,7 +290,7 @@ export function Onboarding() {
                       key={name}
                       type="button"
                       onClick={() => setDisplayName(name)}
-                      className="px-3 py-1.5 rounded-xl bg-white/70 dark:bg-[#174841] hover:bg-white dark:hover:bg-[#1c554d] text-xs font-medium text-teal-900 dark:text-[#E6FFED] border border-white/80 dark:border-teal-700/30 shadow-clay-pill dark:shadow-clay-dark-pill transition-all"
+                      className="px-3 py-1.5 rounded-xl bg-surface-soft hover:bg-surface-hover text-xs font-medium text-text-primary border border-border shadow-clay-pill dark:shadow-clay-dark-pill transition-all cursor-pointer"
                     >
                       {name}
                     </button>
@@ -311,18 +311,18 @@ export function Onboarding() {
               className="space-y-6"
             >
               <div>
-                <h2 className="text-xl font-bold text-[#1F2937] dark:text-[#E6FFED]">Select Your Open Elective</h2>
-                <p className="text-xs text-teal-900/70 dark:text-[#99F6E4]/70 mt-1">
+                <h2 className="text-xl font-bold text-text-primary">Select Your Open Elective</h2>
+                <p className="text-xs text-text-secondary mt-1">
                   Choose the university open elective subject to include in your semester schedule.
                 </p>
               </div>
 
               {loadingSubjects ? (
                 <div className="flex items-center justify-center py-10">
-                  <Loader2 className="w-6 h-6 animate-spin text-[#14BBA6] dark:text-[#2DD4BF]" />
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
                 </div>
               ) : groupedSubjects.electives.length === 0 ? (
-                <p className="text-xs text-teal-900/70 dark:text-[#99F6E4]/70">No elective courses found in curriculum database.</p>
+                <p className="text-xs text-text-secondary">No elective courses found in curriculum database.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {groupedSubjects.electives.map((elective) => {
@@ -333,16 +333,16 @@ export function Onboarding() {
                         key={elective.id}
                         type="button"
                         onClick={() => setSelectedElectiveId(elective.id)}
-                        className={`text-left p-4 rounded-2xl border transition-all duration-200 flex items-start justify-between gap-3 ${
+                        className={`text-left p-4 rounded-2xl border transition-all duration-200 flex items-start justify-between gap-3 cursor-pointer ${
                           isSelected
-                            ? 'bg-white dark:bg-[#174841] shadow-clay-pressed dark:shadow-clay-dark-pressed border-[#14BBA6] dark:border-[#2DD4BF] ring-2 ring-teal-400/20'
-                            : 'bg-white/60 dark:bg-[#0E2A26]/50 border-white/80 dark:border-teal-900/30 shadow-clay-pill dark:shadow-clay-dark-pill hover:bg-white/90 dark:hover:bg-[#0E2A26]/80'
+                            ? 'bg-surface-soft shadow-clay-pressed dark:shadow-clay-dark-pressed border-primary ring-2 ring-primary/20'
+                            : 'bg-surface border-border shadow-clay-pill dark:shadow-clay-dark-pill hover:bg-surface-hover'
                         }`}
                       >
                         <div>
-                          <div className="text-sm font-bold text-[#1F2937] dark:text-[#E6FFED]">{elective.name}</div>
-                          <div className="text-[11px] text-teal-900/70 dark:text-[#99F6E4]/70 mt-1">
-                            Category: <span className="font-semibold uppercase">{elective.category}</span>
+                          <div className="text-sm font-bold text-text-primary">{elective.name}</div>
+                          <div className="text-[11px] text-text-secondary mt-1">
+                            Category: <span className="font-semibold uppercase text-primary">{elective.category}</span>
                           </div>
                         </div>
 
@@ -350,8 +350,8 @@ export function Onboarding() {
                           <div
                             className={`w-5 h-5 rounded-full flex items-center justify-center border ${
                               isSelected
-                                ? 'bg-[#14BBA6] dark:bg-[#2DD4BF] border-teal-600 dark:border-teal-300 text-white dark:text-[#0E2A26]'
-                                : 'border-slate-300 dark:border-teal-700/50 bg-white dark:bg-[#0E2A26]'
+                                ? 'bg-primary border-primary text-canvas'
+                                : 'border-border bg-surface'
                             }`}
                           >
                             {isSelected && <CheckCircle2 className="w-4 h-4" />}
@@ -376,8 +376,8 @@ export function Onboarding() {
               className="space-y-6"
             >
               <div>
-                <h2 className="text-xl font-bold text-[#1F2937] dark:text-[#E6FFED]">Select Honors Track (Optional)</h2>
-                <p className="text-xs text-teal-900/70 dark:text-[#99F6E4]/70 mt-1">
+                <h2 className="text-xl font-bold text-text-primary">Select Honors Track (Optional)</h2>
+                <p className="text-xs text-text-secondary mt-1">
                   You can enroll in an optional Honors curriculum or opt out for a standard load.
                 </p>
               </div>
@@ -387,15 +387,15 @@ export function Onboarding() {
                 <button
                   type="button"
                   onClick={() => setSelectedHonorsId(null)}
-                  className={`text-left p-4 rounded-2xl border transition-all duration-200 flex items-start justify-between gap-3 ${
+                  className={`text-left p-4 rounded-2xl border transition-all duration-200 flex items-start justify-between gap-3 cursor-pointer ${
                     selectedHonorsId === null
-                      ? 'bg-white dark:bg-[#174841] shadow-clay-pressed dark:shadow-clay-dark-pressed border-[#14BBA6] dark:border-[#2DD4BF] ring-2 ring-teal-400/20'
-                      : 'bg-white/60 dark:bg-[#0E2A26]/50 border-white/80 dark:border-teal-900/30 shadow-clay-pill dark:shadow-clay-dark-pill hover:bg-white/90 dark:hover:bg-[#0E2A26]/80'
+                      ? 'bg-surface-soft shadow-clay-pressed dark:shadow-clay-dark-pressed border-primary ring-2 ring-primary/20'
+                      : 'bg-surface border-border shadow-clay-pill dark:shadow-clay-dark-pill hover:bg-surface-hover'
                   }`}
                 >
                   <div>
-                    <div className="text-sm font-bold text-[#1F2937] dark:text-[#E6FFED]">No Honors Track</div>
-                    <div className="text-[11px] text-teal-900/70 dark:text-[#99F6E4]/70 mt-1">
+                    <div className="text-sm font-bold text-text-primary">No Honors Track</div>
+                    <div className="text-[11px] text-text-secondary mt-1">
                       Standard semester curriculum load (Core + Elective only).
                     </div>
                   </div>
@@ -404,8 +404,8 @@ export function Onboarding() {
                     <div
                       className={`w-5 h-5 rounded-full flex items-center justify-center border ${
                         selectedHonorsId === null
-                          ? 'bg-[#14BBA6] dark:bg-[#2DD4BF] border-teal-600 dark:border-teal-300 text-white dark:text-[#0E2A26]'
-                          : 'border-slate-300 dark:border-teal-700/50 bg-white dark:bg-[#0E2A26]'
+                          ? 'bg-primary border-primary text-canvas'
+                          : 'border-border bg-surface'
                       }`}
                     >
                       {selectedHonorsId === null && <CheckCircle2 className="w-4 h-4" />}
@@ -422,15 +422,15 @@ export function Onboarding() {
                       key={honors.id}
                       type="button"
                       onClick={() => setSelectedHonorsId(honors.id)}
-                      className={`text-left p-4 rounded-2xl border transition-all duration-200 flex items-start justify-between gap-3 ${
+                      className={`text-left p-4 rounded-2xl border transition-all duration-200 flex items-start justify-between gap-3 cursor-pointer ${
                         isSelected
-                          ? 'bg-white dark:bg-[#174841] shadow-clay-pressed dark:shadow-clay-dark-pressed border-[#14BBA6] dark:border-[#2DD4BF] ring-2 ring-teal-400/20'
-                          : 'bg-white/60 dark:bg-[#0E2A26]/50 border-white/80 dark:border-teal-900/30 shadow-clay-pill dark:shadow-clay-dark-pill hover:bg-white/90 dark:hover:bg-[#0E2A26]/80'
+                          ? 'bg-surface-soft shadow-clay-pressed dark:shadow-clay-dark-pressed border-primary ring-2 ring-primary/20'
+                          : 'bg-surface border-border shadow-clay-pill dark:shadow-clay-dark-pill hover:bg-surface-hover'
                       }`}
                     >
                       <div>
-                        <div className="text-sm font-bold text-[#1F2937] dark:text-[#E6FFED]">{honors.name}</div>
-                        <div className="text-[11px] text-teal-900/70 dark:text-[#99F6E4]/70 mt-1">
+                        <div className="text-sm font-bold text-text-primary">{honors.name}</div>
+                        <div className="text-[11px] text-text-secondary mt-1">
                           Advanced Specialized Honors track
                         </div>
                       </div>
@@ -439,8 +439,8 @@ export function Onboarding() {
                         <div
                           className={`w-5 h-5 rounded-full flex items-center justify-center border ${
                             isSelected
-                              ? 'bg-[#14BBA6] dark:bg-[#2DD4BF] border-teal-600 dark:border-teal-300 text-white dark:text-[#0E2A26]'
-                              : 'border-slate-300 dark:border-teal-700/50 bg-white dark:bg-[#0E2A26]'
+                              ? 'bg-primary border-primary text-canvas'
+                              : 'border-border bg-surface'
                           }`}
                         >
                           {isSelected && <CheckCircle2 className="w-4 h-4" />}
@@ -465,14 +465,14 @@ export function Onboarding() {
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                  <h2 className="text-xl font-bold text-[#1F2937] dark:text-[#E6FFED]">7-Day Study Availability</h2>
-                  <p className="text-xs text-teal-900/70 dark:text-[#99F6E4]/70 mt-1">
+                  <h2 className="text-xl font-bold text-text-primary">7-Day Study Availability</h2>
+                  <p className="text-xs text-text-secondary mt-1">
                     Adjust your study hours per day. Alpine uses this capacity budget to schedule tasks without overload.
                   </p>
                 </div>
 
-                <div className="bg-teal-100/70 dark:bg-teal-950/80 border border-teal-200/50 dark:border-teal-800/40 px-3.5 py-1.5 rounded-2xl text-xs font-bold text-teal-800 dark:text-teal-200 shadow-sm shrink-0">
-                  Weekly Budget: <span className="font-mono text-sm">{totalWeeklyHours.toFixed(1)}</span> hrs
+                <div className="bg-surface-soft border border-border px-3.5 py-1.5 rounded-2xl text-xs font-bold text-text-primary shadow-sm shrink-0">
+                  Weekly Budget: <span className="font-mono text-sm text-primary">{totalWeeklyHours.toFixed(1)}</span> hrs
                 </div>
               </div>
 
@@ -484,9 +484,9 @@ export function Onboarding() {
                   return (
                     <div
                       key={d.day}
-                      className="flex items-center gap-4 bg-white/70 dark:bg-[#174841]/80 p-3 rounded-2xl border border-white/90 dark:border-teal-700/30 shadow-clay-pill dark:shadow-clay-dark-pill"
+                      className="flex items-center gap-4 bg-surface p-3 rounded-2xl border border-border shadow-clay-pill dark:shadow-clay-dark-pill"
                     >
-                      <div className="w-24 text-xs font-bold text-teal-900 dark:text-[#E6FFED]">
+                      <div className="w-24 text-xs font-bold text-text-primary">
                         {d.name}
                       </div>
 
@@ -497,10 +497,10 @@ export function Onboarding() {
                         step="0.5"
                         value={val}
                         onChange={(e) => handleHourChange(d.day, parseFloat(e.target.value))}
-                        className="flex-1 accent-[#14BBA6] dark:accent-[#2DD4BF] cursor-pointer"
+                        className="flex-1 accent-primary cursor-pointer"
                       />
 
-                      <div className="w-16 text-right font-mono text-xs font-bold text-teal-800 dark:text-[#2DD4BF]">
+                      <div className="w-16 text-right font-mono text-xs font-bold text-primary">
                         {val.toFixed(1)} hrs
                       </div>
                     </div>
@@ -509,8 +509,8 @@ export function Onboarding() {
               </div>
 
               {/* Semester Start Date Picker */}
-              <div className="pt-2 flex items-center justify-between border-t border-teal-600/10 dark:border-teal-400/15">
-                <label htmlFor="start-date-input" className="text-xs font-bold text-teal-900 dark:text-teal-200">
+              <div className="pt-2 flex items-center justify-between border-t border-border">
+                <label htmlFor="start-date-input" className="text-xs font-bold text-text-primary">
                   Semester Study Start Date:
                 </label>
                 <input
@@ -518,7 +518,7 @@ export function Onboarding() {
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#0E2A26] border border-slate-200 dark:border-teal-900/30 text-xs font-medium text-[#1F2937] dark:text-[#E6FFED] focus:outline-none focus:ring-2 focus:ring-[#14BBA6]"
+                  className="px-3 py-1.5 rounded-xl bg-surface-inset border border-border/80 shadow-clay-inset dark:shadow-clay-dark-inset text-xs font-medium text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
             </motion.div>
@@ -526,15 +526,15 @@ export function Onboarding() {
         </AnimatePresence>
 
         {/* Wizard Controls Footer */}
-        <div className="flex items-center justify-between pt-6 border-t border-teal-600/10 dark:border-teal-400/15 mt-6">
+        <div className="flex items-center justify-between pt-6 border-t border-border mt-6">
           <button
             type="button"
             onClick={handleBack}
             disabled={currentStep === 1 || isSubmitting}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
               currentStep === 1
                 ? 'opacity-0 pointer-events-none'
-                : 'bg-white/80 dark:bg-[#174841] text-teal-900 dark:text-[#E6FFED] border border-white/90 dark:border-teal-700/30 shadow-clay-pill dark:shadow-clay-dark-pill hover:bg-white dark:hover:bg-[#1c554d] active:shadow-clay-pressed'
+                : 'bg-surface-soft text-text-primary border border-border shadow-clay-pill dark:shadow-clay-dark-pill hover:bg-surface-hover active:shadow-clay-pressed'
             }`}
           >
             <ArrowLeft className="w-4 h-4" />
@@ -545,7 +545,7 @@ export function Onboarding() {
             <button
               type="button"
               onClick={handleNext}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#14BBA6] hover:bg-teal-600 dark:bg-[#2DD4BF] dark:hover:bg-teal-300 text-white dark:text-[#0E2A26] text-xs font-bold shadow-clay-pill dark:shadow-clay-dark-pill active:shadow-clay-pressed transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary hover:bg-primary-hover text-canvas text-xs font-black shadow-clay-pill dark:shadow-clay-dark-pill active:shadow-clay-pressed transition-all cursor-pointer"
             >
               <span>Next Step</span>
               <ArrowRight className="w-4 h-4" />
@@ -555,7 +555,7 @@ export function Onboarding() {
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#14BBA6] hover:bg-teal-600 dark:bg-[#2DD4BF] dark:hover:bg-teal-300 text-white dark:text-[#0E2A26] text-xs font-bold shadow-clay-pill dark:shadow-clay-dark-pill active:shadow-clay-pressed transition-all"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-primary hover:bg-primary-hover text-canvas text-xs font-black shadow-clay-pill dark:shadow-clay-dark-pill active:shadow-clay-pressed transition-all cursor-pointer"
             >
               {isSubmitting ? (
                 <>
