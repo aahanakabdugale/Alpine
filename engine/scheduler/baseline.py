@@ -109,6 +109,7 @@ def build_schedule(
     max_daily_difficulty: int = MAX_DAILY_DIFFICULTY_POINTS,
     auto_slice: bool = False,
     enable_interleaving: bool = True,
+    max_time_in_seconds: float = 30.0,
 ) -> list[ScheduleEntry]:
     # 1. Fast Availability Pre-Check
     largest_single_day = max((a.hours_available for a in request.availability), default=0.0)
@@ -253,7 +254,7 @@ def build_schedule(
 
     # 8. Solve
     solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = 15
+    solver.parameters.max_time_in_seconds = max_time_in_seconds
     solver.parameters.num_search_workers = 8
     status = solver.Solve(model)
 

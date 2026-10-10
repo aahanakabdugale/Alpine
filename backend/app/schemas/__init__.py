@@ -1,0 +1,51 @@
+from app.schemas.student import (
+    StudentSummary,
+    StudentCreate,
+    StudentCreateResponse,
+    DailyAvailabilityItem,
+    StudentOnboardRequest,
+    StudentOnboardResponse,
+    StudentAvailabilityUpdate,
+    StudentProfileOut,
+)
+from app.schemas.curriculum import (
+    SubjectOut,
+    SubjectsGrouped,
+    SubtopicTree,
+    TopicTree,
+    ModuleTree,
+    SubjectTree,
+)
+from app.schemas.schedule import (
+    ScheduleEntryOut,
+    ExamCountdownItem,
+    TodayScheduleResponse,
+    CheckInRequest,
+    CheckInResponse,
+    ProgressSubjectStats,
+    ProgressResponse,
+)
+
+__all__ = [
+    "StudentSummary",
+    "StudentCreate",
+    "StudentCreateResponse",
+    "DailyAvailabilityItem",
+    "StudentOnboardRequest",
+    "StudentOnboardResponse",
+    "StudentAvailabilityUpdate",
+    "StudentProfileOut",
+    "SubjectOut",
+    "SubjectsGrouped",
+    "SubtopicTree",
+    "TopicTree",
+    "ModuleTree",
+    "SubjectTree",
+    "ScheduleEntryOut",
+    "ExamCountdownItem",
+    "TodayScheduleResponse",
+    "CheckInRequest",
+    "CheckInResponse",
+    "ProgressSubjectStats",
+    "ProgressResponse",
+]
