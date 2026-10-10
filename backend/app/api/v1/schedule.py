@@ -67,6 +67,9 @@ def _hydrate_schedule_entries(
                 subtopic_name=sub.name if sub else None,
                 subject_id=subj.id if subj else None,
                 subject_name=subj.name if subj else None,
+                module_id=mod.id if mod else None,
+                module_name=mod.name if mod else None,
+                assessment_phase=mod.assessment_phase if mod else None,
                 est_hours=est_hours,
                 est_difficulty=est_diff,
             )

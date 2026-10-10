@@ -23,6 +23,9 @@ class ScheduleEntryOut(BaseModel):
     subtopic_name: str | None = None
     subject_id: str | None = None
     subject_name: str | None = None
+    module_id: str | None = None
+    module_name: str | None = None
+    assessment_phase: str | None = None
     est_hours: float | None = None
     est_difficulty: int | None = None
 

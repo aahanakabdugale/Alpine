@@ -89,3 +89,19 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# ==========================================
+# Frontend / Node
+# ==========================================
+frontend/node_modules/
+node_modules/
+frontend/dist/
+dist/
+*.tsbuildinfo
+
+# ==========================================
+# SQLite Temporary Journal & WAL Files
+# ==========================================
+*.db-wal
+*.db-shm
+*.db-journal
