@@ -7,23 +7,38 @@ echo "===================================================="
 
 PROJECT_ROOT="$(pwd)"
 
-# 1. Locate existing virtual environment across common layouts
+# 1. Locate existing virtual environment activation script (Unix 'bin' or Windows 'Scripts')
 VENV_ACTIVATE=""
-if [ -f "$PROJECT_ROOT/.venv/bin/activate" ]; then
-    VENV_ACTIVATE="$PROJECT_ROOT/.venv/bin/activate"
-elif [ -f "$PROJECT_ROOT/venv/bin/activate" ]; then
-    VENV_ACTIVATE="$PROJECT_ROOT/venv/bin/activate"
-elif [ -f "$PROJECT_ROOT/backend/.venv/bin/activate" ]; then
-    VENV_ACTIVATE="$PROJECT_ROOT/backend/.venv/bin/activate"
-elif [ -f "$PROJECT_ROOT/backend/venv/bin/activate" ]; then
-    VENV_ACTIVATE="$PROJECT_ROOT/backend/venv/bin/activate"
-fi
+for candidate in \
+    "$PROJECT_ROOT/.venv/bin/activate" \
+    "$PROJECT_ROOT/.venv/Scripts/activate" \
+    "$PROJECT_ROOT/venv/bin/activate" \
+    "$PROJECT_ROOT/venv/Scripts/activate" \
+    "$PROJECT_ROOT/backend/.venv/bin/activate" \
+    "$PROJECT_ROOT/backend/.venv/Scripts/activate" \
+    "$PROJECT_ROOT/backend/venv/bin/activate" \
+    "$PROJECT_ROOT/backend/venv/Scripts/activate"; do
+    if [ -f "$candidate" ]; then
+        VENV_ACTIVATE="$candidate"
+        break
+    fi
+done
 
 # 2. If no virtual environment is found, create .venv in root
 if [ -z "$VENV_ACTIVATE" ]; then
     echo "[Setup] No virtual environment detected. Creating .venv..."
-    python3 -m venv "$PROJECT_ROOT/.venv"
-    VENV_ACTIVATE="$PROJECT_ROOT/.venv/bin/activate"
+    if command -v python3 >/dev/null 2>&1; then
+        python3 -m venv "$PROJECT_ROOT/.venv"
+    else
+        python -m venv "$PROJECT_ROOT/.venv"
+    fi
+
+    if [ -f "$PROJECT_ROOT/.venv/bin/activate" ]; then
+        VENV_ACTIVATE="$PROJECT_ROOT/.venv/bin/activate"
+    elif [ -f "$PROJECT_ROOT/.venv/Scripts/activate" ]; then
+        VENV_ACTIVATE="$PROJECT_ROOT/.venv/Scripts/activate"
+    fi
+
     source "$VENV_ACTIVATE"
     echo "[Setup] Installing backend dependencies..."
     pip install -r "$PROJECT_ROOT/backend/requirements.txt"
@@ -31,11 +46,8 @@ else
     source "$VENV_ACTIVATE"
 fi
 
-# 3. Create alpine.pth dynamically inside site-packages (resolves 'engine' import)
-SITE_PACKAGES=$(python3 -c "import site; print(site.getsitepackages()[0])")
-if [ -d "$SITE_PACKAGES" ]; then
-    printf "%s\n%s/backend\n" "$PROJECT_ROOT" "$PROJECT_ROOT" > "$SITE_PACKAGES/alpine.pth"
-fi
+# 3. Resolve 'engine' module via PYTHONPATH
+export PYTHONPATH="$PROJECT_ROOT:$PROJECT_ROOT/backend:$PYTHONPATH"
 
 # 4. Ensure frontend dependencies exist
 if [ ! -d "$PROJECT_ROOT/frontend/node_modules" ]; then
