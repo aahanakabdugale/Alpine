@@ -80,8 +80,10 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+backend/lib/
+backend/lib64/
+.venv/lib/
+.venv/lib64/
 parts/
 sdist/
 var/
@@ -98,6 +100,7 @@ node_modules/
 frontend/dist/
 dist/
 *.tsbuildinfo
+!frontend/src/lib/
 
 # ==========================================
 # SQLite Temporary Journal & WAL Files
