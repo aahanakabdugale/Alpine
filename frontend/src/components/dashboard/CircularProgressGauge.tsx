@@ -27,17 +27,16 @@ export function CircularProgressGauge({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="var(--border)"
+          className="stroke-slate-200/80 dark:stroke-emerald-500/20"
           strokeWidth={strokeWidth}
           fill="transparent"
-          className="opacity-70 dark:opacity-30"
         />
-        {/* Progress Arc */}
+        {/* Progress Arc — glowing teal */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="var(--primary)"
+          stroke="url(#tealGradient)"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           fill="transparent"
@@ -45,20 +44,26 @@ export function CircularProgressGauge({
             strokeDasharray: circumference,
             strokeDashoffset,
             transition: 'stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+            filter: clamped > 0 ? 'drop-shadow(0 0 6px rgba(45, 212, 191, 0.6))' : 'none',
           }}
         />
+        <defs>
+          <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#12BFA5" />
+            <stop offset="100%" stopColor="#35E0BE" />
+          </linearGradient>
+        </defs>
       </svg>
 
       {/* Center Percentage Display */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-        <span className="font-mono text-3xl font-black text-text-primary tracking-tight">
+        <span className="font-mono text-3xl font-black tracking-tight text-slate-800 dark:text-white">
           {Math.round(clamped)}%
         </span>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted mt-0.5">
+        <span className="text-[10px] font-bold uppercase tracking-wider mt-0.5 text-slate-500 dark:text-teal-400/80">
           Complete
         </span>
       </div>
     </div>
   );
 }
-

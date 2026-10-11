@@ -20,11 +20,12 @@ interface UpNextTimelineProps {
   onCheckInSuccess: () => void;
 }
 
+const cardTheme = "transition-all duration-300 bg-white/85 text-slate-800 border border-emerald-100 shadow-[0_10px_30px_rgba(16,185,129,0.06)] backdrop-blur-md dark:bg-[#06201c]/80 dark:text-emerald-50 dark:border-emerald-500/15 dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] dark:backdrop-blur-md";
+
 export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps) {
   const [activeCheckInTaskId, setActiveCheckInTaskId] = useState<string | null>(null);
   const [submittingTaskId, setSubmittingTaskId] = useState<string | null>(null);
 
-  // Find the first non-completed task index
   const nextPendingIndex = tasks.findIndex((t) => t.status !== 'done');
 
   const handleRate = async (task: ScheduleEntryOut, rating: number) => {
@@ -57,10 +58,10 @@ export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps)
 
   if (tasks.length === 0) {
     return (
-      <div className="rounded-3xl bg-surface border border-border shadow-clay-card dark:shadow-clay-dark-card p-6 text-center">
-        <CheckCircle2 className="w-10 h-10 text-primary mx-auto mb-2 opacity-80" />
-        <h3 className="text-sm font-bold text-text-primary">No tasks remaining for today</h3>
-        <p className="text-xs text-text-secondary mt-1">
+      <div className={`rounded-3xl p-6 text-center ${cardTheme}`}>
+        <CheckCircle2 className="w-10 h-10 mx-auto mb-2 text-emerald-500 dark:text-[#35E0BE]" />
+        <h3 className="text-sm font-bold text-slate-800 dark:text-white">No tasks remaining for today</h3>
+        <p className="text-xs mt-1 text-slate-600 dark:text-emerald-200/80">
           You are completely caught up with your study horizon for today.
         </p>
       </div>
@@ -68,23 +69,26 @@ export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps)
   }
 
   return (
-    <div className="rounded-3xl bg-surface border border-border shadow-clay-card dark:shadow-clay-dark-card p-6 space-y-4">
+    <div className={`rounded-3xl p-6 space-y-4 ${cardTheme}`}>
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-black uppercase tracking-wider text-text-primary">
+          <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 dark:text-white">
             Up Next Today
           </h3>
-          <p className="text-xs text-text-secondary mt-0.5">
+          <p className="text-xs mt-0.5 text-slate-600 dark:text-emerald-200/80">
             Sequential study path prioritized by syllabus prerequisites.
           </p>
         </div>
-        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-surface-soft text-primary border border-border shadow-clay-pill dark:shadow-clay-dark-pill">
+        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 dark:bg-emerald-500/10 dark:text-[#35E0BE] dark:border-emerald-500/20">
           {tasks.length} {tasks.length === 1 ? 'Unit' : 'Units'}
         </span>
       </div>
 
       {/* Sequential Vertical Timeline */}
-      <div className="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-border">
+      <div className="relative pl-6 space-y-4">
+        {/* Line connecting nodes */}
+        <div className="absolute left-2.5 top-3 bottom-3 w-0.5 bg-slate-200 dark:bg-emerald-500/15" />
+
         {tasks.map((task, index) => {
           const isDone = task.status === 'done';
           const isCurrent = index === nextPendingIndex;
@@ -98,10 +102,10 @@ export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps)
               <div
                 className={`absolute -left-6 top-4 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
                   isDone
-                    ? 'bg-status-fresh border-status-fresh text-white'
+                    ? 'bg-emerald-500 border-emerald-500 text-white'
                     : isCurrent
-                    ? 'bg-primary border-primary text-canvas ring-4 ring-primary/25 scale-125 shadow-sm'
-                    : 'bg-surface border-border text-text-muted'
+                    ? 'ring-4 ring-emerald-400/25 scale-125 shadow-sm bg-gradient-to-r from-emerald-400 to-teal-400 border-teal-300 text-slate-950 font-black'
+                    : 'bg-white border-slate-300 text-slate-400 dark:bg-[#06201c] dark:border-emerald-500/20 dark:text-emerald-200/60'
                 }`}
               >
                 {isDone ? (
@@ -115,10 +119,10 @@ export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps)
               <div
                 className={`rounded-2xl p-4 transition-all duration-200 ${
                   isCurrent
-                    ? 'bg-surface-soft border border-primary/50 shadow-clay-pill dark:shadow-clay-dark-pill'
+                    ? 'bg-emerald-50/80 border border-emerald-300/80 shadow-sm dark:bg-emerald-500/10 dark:border-emerald-500/25 dark:shadow-[0_0_20px_rgba(45,212,191,0.08)]'
                     : isDone
-                    ? 'bg-surface/30 border border-border/40 opacity-60 hover:opacity-100 shadow-none'
-                    : 'bg-surface border border-border/60 hover:bg-surface-hover/50 hover:border-border shadow-none'
+                    ? 'bg-slate-50/60 border border-slate-200/50 opacity-60 dark:bg-[#06201c]/30 dark:border-emerald-500/10'
+                    : 'bg-white/70 border border-slate-200/60 hover:bg-white dark:bg-[#06201c]/50 dark:border-emerald-500/10 dark:hover:bg-[#06201c]/70'
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -127,25 +131,25 @@ export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps)
                     <div className="flex items-center gap-2 flex-wrap">
                       {/* Status Tag */}
                       <span
-                        className={`text-[10px] uppercase px-2 py-0.5 rounded-full border ${
+                        className={`text-[10px] uppercase px-2 py-0.5 rounded-full font-bold ${
                           isCurrent
-                            ? 'bg-primary text-canvas border-primary font-black shadow-sm'
+                            ? 'bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black shadow-sm'
                             : isDone
-                            ? 'bg-status-fresh/15 text-status-fresh border-status-fresh/30 font-bold'
-                            : 'bg-surface-soft text-text-muted border-border font-semibold'
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300'
+                            : 'bg-slate-100 text-slate-600 dark:bg-emerald-500/10 dark:text-emerald-200/60'
                         }`}
                       >
                         {isCurrent ? 'Current' : isDone ? 'Completed' : 'Planned'}
                       </span>
 
                       {/* Subject Name */}
-                      <span className="text-[11px] font-semibold text-text-muted">
+                      <span className="text-[11px] font-semibold text-slate-500 dark:text-emerald-200/70">
                         {task.subject_name || 'Subject'}
                       </span>
 
                       {/* Spaced Review Tag */}
                       {task.is_review && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-status-fading/15 text-status-fading border border-status-fading/30 flex items-center gap-1">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/25 flex items-center gap-1">
                           <RotateCcw className="w-2.5 h-2.5" />
                           Spaced Review
                         </span>
@@ -153,25 +157,25 @@ export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps)
                     </div>
 
                     {/* Topic Title */}
-                    <div className="text-sm font-bold text-text-primary leading-snug">
+                    <div className="text-sm font-bold leading-snug text-slate-800 dark:text-white">
                       {task.topic_name || task.title}
                     </div>
 
-                    {/* Module info */}
-                    <div className="flex items-center gap-3 text-[11px] text-text-muted">
+                    {/* Module info row */}
+                    <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-emerald-200/60">
                       {task.module_name && (
                         <span className="flex items-center gap-1 truncate max-w-[200px]">
-                          <BookMarked className="w-3 h-3" />
+                          <BookMarked className="w-3 h-3 text-emerald-600 dark:text-teal-400" />
                           {task.module_name}
                         </span>
                       )}
                       <span className="flex items-center gap-1 font-mono">
-                        <Clock className="w-3 h-3 text-primary" />
+                        <Clock className="w-3 h-3 text-emerald-600 dark:text-teal-400" />
                         {hours}h
                       </span>
                       {task.est_difficulty && (
                         <span className="flex items-center gap-1">
-                          <Flame className="w-3 h-3 text-status-fading" />
+                          <Flame className="w-3 h-3 text-amber-500" />
                           {task.est_difficulty}/5
                         </span>
                       )}
@@ -188,11 +192,11 @@ export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps)
                         }
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                           isCurrent
-                            ? 'bg-primary hover:bg-primary-hover text-canvas shadow-clay-pill dark:shadow-clay-dark-pill'
-                            : 'bg-surface-soft hover:bg-surface-hover text-text-primary border border-border'
+                            ? 'btn-glow'
+                            : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/60 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-[#A0F3DF] dark:border-emerald-500/15'
                         }`}
                       >
-                        <span>{isExpanded ? 'Cancel' : 'Check In'}</span>
+                        <span>{isExpanded ? 'Cancel' : isCurrent ? 'Continue' : 'Start'}</span>
                         {isExpanded ? (
                           <ChevronUp className="w-3.5 h-3.5" />
                         ) : (
@@ -203,7 +207,7 @@ export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps)
                   </div>
                 </div>
 
-                {/* Inline 1–5 Confidence Rating Dropdown */}
+                {/* Inline Confidence Rating */}
                 <AnimatePresence>
                   {isExpanded && !isDone && (
                     <motion.div
@@ -213,13 +217,13 @@ export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps)
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className="mt-3 pt-3 border-t border-border">
+                      <div className="mt-3 pt-3 border-t border-slate-200/60 dark:border-emerald-500/15">
                         <div className="flex items-center justify-between text-xs mb-2">
-                          <span className="font-bold text-text-primary flex items-center gap-1">
-                            <Sparkles className="w-3 h-3 text-primary" />
-                            Select Recall Confidence Rating:
+                          <span className="font-bold flex items-center gap-1 text-slate-800 dark:text-white">
+                            <Sparkles className="w-3 h-3 text-emerald-600 dark:text-teal-400" />
+                            Select Recall Confidence:
                           </span>
-                          <span className="text-[10px] text-text-muted">
+                          <span className="text-[10px] text-slate-500 dark:text-emerald-200/60">
                             1 (Hard) to 5 (Mastered)
                           </span>
                         </div>
@@ -231,7 +235,7 @@ export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps)
                               type="button"
                               disabled={isSubmitting}
                               onClick={() => handleRate(task, rating)}
-                              className="py-2 px-1 rounded-xl text-xs font-bold bg-surface hover:bg-surface-soft border border-border text-text-primary hover:text-primary transition-all flex items-center justify-center shadow-sm hover:shadow-clay-pill"
+                              className="py-2 px-1 rounded-xl text-xs font-bold transition-all flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/60 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-[#A0F3DF] dark:border-emerald-500/15"
                             >
                               {isSubmitting ? (
                                 <Loader2 className="w-3.5 h-3.5 animate-spin" />

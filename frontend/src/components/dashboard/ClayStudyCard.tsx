@@ -10,13 +10,15 @@ interface ClayStudyCardProps {
   onCheckInSuccess?: (unitId: string, rating: number, response: CheckInResponse) => void;
 }
 
-const RATING_LABELS: Record<number, { label: string; desc: string; color: string }> = {
-  1: { label: '1', desc: 'Forgot / Hard', color: 'hover:bg-rose-100 dark:hover:bg-rose-950/60 hover:text-rose-800 dark:hover:text-rose-200' },
-  2: { label: '2', desc: 'Hesitant', color: 'hover:bg-amber-100 dark:hover:bg-amber-950/60 hover:text-amber-800 dark:hover:text-amber-200' },
-  3: { label: '3', desc: 'Fair Recall', color: 'hover:bg-primary/10 hover:text-primary' },
-  4: { label: '4', desc: 'Good', color: 'hover:bg-emerald-100 dark:hover:bg-emerald-950/60 hover:text-emerald-800 dark:hover:text-emerald-200' },
-  5: { label: '5', desc: 'Mastered', color: 'hover:bg-primary/20 hover:text-primary' },
+const RATING_LABELS: Record<number, { label: string; desc: string }> = {
+  1: { label: '1', desc: 'Forgot / Hard' },
+  2: { label: '2', desc: 'Hesitant' },
+  3: { label: '3', desc: 'Fair Recall' },
+  4: { label: '4', desc: 'Good' },
+  5: { label: '5', desc: 'Mastered' },
 };
+
+const cardTheme = "transition-all duration-300 bg-white/85 text-slate-800 border border-emerald-100 shadow-[0_10px_30px_rgba(16,185,129,0.06)] backdrop-blur-md dark:bg-[#06201c]/80 dark:text-emerald-50 dark:border-emerald-500/15 dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] dark:backdrop-blur-md";
 
 export function ClayStudyCard({ task, onCheckInSuccess }: ClayStudyCardProps) {
   const isDoneInitially = task.status === 'done';
@@ -68,10 +70,8 @@ export function ClayStudyCard({ task, onCheckInSuccess }: ClayStudyCardProps) {
 
   return (
     <div
-      className={`rounded-3xl bg-surface border border-border text-text-primary hover:shadow-clay-hover dark:hover:shadow-clay-dark-hover transition-all duration-300 p-5 sm:p-6 relative flex flex-col justify-between group shadow-clay-card dark:shadow-clay-dark-card ${
-        isCompleted
-          ? 'bg-surface-soft/60 border-status-fresh/30'
-          : ''
+      className={`rounded-3xl p-5 sm:p-6 relative flex flex-col justify-between group ${cardTheme} ${
+        isCompleted ? 'border-emerald-200 dark:border-emerald-500/25' : ''
       }`}
     >
       {/* Top Meta Row */}
@@ -79,25 +79,25 @@ export function ClayStudyCard({ task, onCheckInSuccess }: ClayStudyCardProps) {
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 flex-wrap">
             {/* Subject pill */}
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-surface-soft text-text-primary shadow-clay-pill dark:shadow-clay-dark-pill border border-border">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60 dark:bg-emerald-500/10 dark:text-[#A0F3DF] dark:border-emerald-500/15">
               {task.subject_name || 'Syllabus Task'}
             </span>
 
-            {/* Phase pill (UT1 / UT2) */}
-            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full shadow-clay-pill dark:shadow-clay-dark-pill bg-primary/10 text-primary border border-primary/20">
+            {/* Phase pill */}
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 dark:bg-emerald-500/15 dark:text-teal-300 dark:border-emerald-500/20">
               {phase}
             </span>
 
             {/* Review pill */}
             {task.is_review && (
-              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-status-fading/15 text-status-fading border border-status-fading/30 shadow-clay-pill dark:shadow-clay-dark-pill flex items-center gap-1 animate-pulse">
+              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/25 flex items-center gap-1 animate-pulse">
                 <RotateCcw className="w-3 h-3" />
                 Spaced Review
               </span>
             )}
           </div>
 
-          {/* Status badge with spring pop */}
+          {/* Completed badge */}
           <AnimatePresence>
             {isCompleted && (
               <motion.span
@@ -105,7 +105,7 @@ export function ClayStudyCard({ task, onCheckInSuccess }: ClayStudyCardProps) {
                 animate={{ scale: [0.8, 1.15, 1], opacity: 1 }}
                 exit={{ scale: 0.8, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 450, damping: 16 }}
-                className="text-xs font-bold px-2.5 py-1 rounded-full bg-status-fresh/15 text-status-fresh border border-status-fresh/30 shadow-clay-pill dark:shadow-clay-dark-pill flex items-center gap-1"
+                className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25 flex items-center gap-1"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 Completed
@@ -115,28 +115,28 @@ export function ClayStudyCard({ task, onCheckInSuccess }: ClayStudyCardProps) {
         </div>
 
         {/* Topic Title */}
-        <h3 className="text-lg font-bold text-text-primary group-hover:text-primary transition-colors leading-snug">
+        <h3 className="text-lg font-bold leading-snug text-slate-800 dark:text-white">
           {topicName}
         </h3>
 
-        {/* Subtopic description if present */}
+        {/* Subtopic */}
         {task.subtopic_name && task.subtopic_name !== topicName && (
-          <p className="text-xs font-medium text-text-secondary mt-1 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+          <p className="text-xs font-medium mt-1 flex items-center gap-1.5 text-slate-600 dark:text-emerald-200/80">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-teal-400" />
             <span>Subtopic: {task.subtopic_name}</span>
           </p>
         )}
 
         {/* Module Name */}
-        <div className="flex items-center gap-1.5 text-xs text-text-muted mt-2 font-medium">
+        <div className="flex items-center gap-1.5 text-xs mt-2 font-medium text-slate-500 dark:text-emerald-200/60">
           <BookMarked className="w-3.5 h-3.5 opacity-70" />
           <span className="truncate">{moduleName}</span>
         </div>
 
-        {/* Stats Row: Hours + Difficulty */}
-        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border text-xs text-text-secondary">
+        {/* Stats Row */}
+        <div className="flex items-center gap-4 mt-3 pt-3 text-xs border-t border-slate-200/60 dark:border-emerald-500/10 text-slate-600 dark:text-emerald-200/70">
           <div className="flex items-center gap-1.5 font-medium">
-            <Clock className="w-3.5 h-3.5 text-primary" />
+            <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-teal-400" />
             <span>{hours} {hours === 1 ? 'hour' : 'hours'}</span>
           </div>
 
@@ -156,21 +156,26 @@ export function ClayStudyCard({ task, onCheckInSuccess }: ClayStudyCardProps) {
       </div>
 
       {/* Interactive 1–5 Rating Bar */}
-      <div className="mt-5 pt-4 border-t border-border">
+      <div className="mt-5 pt-4 border-t border-slate-200/60 dark:border-emerald-500/10">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-bold text-text-primary flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-primary" />
+          <span className="text-xs font-bold flex items-center gap-1 text-slate-800 dark:text-white">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-teal-400" />
             {isCompleted ? 'Completion Logged' : 'Rate Confidence to Check In:'}
           </span>
-          <span className="text-[11px] text-text-muted font-medium">
-            {hoverRating ? RATING_LABELS[hoverRating]?.desc : (selectedRating ? RATING_LABELS[selectedRating]?.desc : (isCompleted ? 'Marked Done' : '1 (Forgot) to 5 (Mastered)'))}
+          <span className="text-[11px] font-medium text-slate-500 dark:text-emerald-200/70">
+            {hoverRating
+              ? RATING_LABELS[hoverRating]?.desc
+              : selectedRating
+              ? RATING_LABELS[selectedRating]?.desc
+              : isCompleted
+              ? 'Marked Done'
+              : '1 (Forgot) to 5 (Mastered)'}
           </span>
         </div>
 
         <div className="grid grid-cols-5 gap-2">
           {[1, 2, 3, 4, 5].map((rating) => {
             const isSelected = selectedRating === rating;
-            const ratingStyle = RATING_LABELS[rating];
 
             return (
               <motion.button
@@ -184,13 +189,12 @@ export function ClayStudyCard({ task, onCheckInSuccess }: ClayStudyCardProps) {
                 animate={isSelected ? { scale: [0.8, 1.15, 1] } : {}}
                 transition={{ type: 'spring', stiffness: 450, damping: 16 }}
                 disabled={isSubmitting}
-                title={ratingStyle.desc}
-                className={`py-2 px-1 rounded-2xl text-xs font-bold transition-colors duration-150 flex flex-col items-center justify-center border ${
+                className={`py-2 px-1 rounded-2xl text-xs font-bold transition-all flex flex-col items-center justify-center ${
                   isSelected
-                    ? 'bg-primary text-canvas border-primary shadow-clay-pressed dark:shadow-clay-dark-pressed scale-95'
+                    ? 'btn-glow'
                     : isCompleted
-                    ? 'bg-surface/40 text-text-muted border-border cursor-default'
-                    : `bg-surface-soft shadow-clay-pill dark:shadow-clay-dark-pill border border-border text-text-primary hover:shadow-clay-hover dark:hover:shadow-clay-dark-hover active:shadow-clay-pressed dark:active:shadow-clay-dark-pressed ${ratingStyle.color}`
+                    ? 'bg-slate-100/50 text-slate-400 border border-slate-200/40 dark:bg-[#06201c]/40 dark:text-emerald-200/40 dark:border-emerald-500/10 cursor-default'
+                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/60 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-[#A0F3DF] dark:border-emerald-500/15'
                 }`}
               >
                 {isSubmitting && isSelected ? (

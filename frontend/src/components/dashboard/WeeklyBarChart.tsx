@@ -15,6 +15,8 @@ interface WeeklyBarChartProps {
   dayStreak: number;
 }
 
+const cardTheme = "transition-all duration-300 bg-white/85 text-slate-800 border border-emerald-100 shadow-[0_10px_30px_rgba(16,185,129,0.06)] backdrop-blur-md dark:bg-[#06201c]/80 dark:text-emerald-50 dark:border-emerald-500/15 dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] dark:backdrop-blur-md";
+
 export function WeeklyBarChart({
   days,
   topicsMastered,
@@ -27,21 +29,21 @@ export function WeeklyBarChart({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       {/* Weekly Bar Chart (Cols 1–8) */}
-      <div className="lg:col-span-8 rounded-3xl bg-surface border border-border shadow-clay-card dark:shadow-clay-dark-card p-6 flex flex-col justify-between">
+      <div className={`lg:col-span-8 rounded-3xl p-6 flex flex-col justify-between ${cardTheme}`}>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-sm font-black uppercase tracking-wider text-text-primary">
+            <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 dark:text-white">
               Weekly Study Capacity & Distribution
             </h3>
-            <p className="text-xs text-text-secondary mt-0.5">
-              Daily study allocation across Monday–Sunday horizon.
+            <p className="text-xs mt-0.5 text-slate-600 dark:text-emerald-200/80">
+              Planned study hours across this week.
             </p>
           </div>
           <div className="text-right">
-            <span className="font-mono text-base font-black text-primary">
+            <span className="font-mono text-base font-black text-emerald-600 dark:text-[#35E0BE]">
               {totalWeekHours.toFixed(1)} hrs
             </span>
-            <span className="block text-[10px] text-text-muted font-bold uppercase">
+            <span className="block text-[10px] font-bold uppercase text-slate-400 dark:text-emerald-200/60">
               This Week
             </span>
           </div>
@@ -56,22 +58,26 @@ export function WeeklyBarChart({
 
             return (
               <div key={day.dayName} className="flex flex-col items-center gap-2 group">
-                {/* Hours tooltip / label */}
-                <span className="font-mono text-[10px] font-bold text-text-muted group-hover:text-primary transition-colors">
+                {/* Hours label */}
+                <span className="font-mono text-[10px] font-bold text-slate-500 group-hover:text-emerald-600 dark:text-emerald-200/70 dark:group-hover:text-teal-400 transition-colors">
                   {day.hours > 0 ? `${day.hours.toFixed(1)}h` : '0h'}
                 </span>
 
-                {/* Recessed Track and Bar */}
-                <div className="w-full max-w-[32px] sm:max-w-[36px] h-28 bg-teal-100/50 dark:bg-teal-950/60 rounded-full border border-teal-200/40 dark:border-teal-800/30 overflow-hidden p-1 flex flex-col justify-end shadow-clay-inset dark:shadow-clay-dark-inset relative">
-                  {/* Subtle baseline for zero-hour days */}
+                {/* Track + Bar */}
+                <div className="w-full max-w-[32px] sm:max-w-[36px] h-28 rounded-full overflow-hidden p-1 flex flex-col justify-end relative bg-slate-100 border border-slate-200/70 shadow-inner dark:bg-[#031210]/60 dark:border-emerald-500/15 dark:shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]">
+                  {/* Baseline for zero-hour days */}
                   {!hasHours && (
-                    <div className="w-full h-1 bg-teal-200/50 dark:bg-teal-800/40 rounded-full" />
+                    <div className="w-full h-1 rounded-full bg-slate-200 dark:bg-emerald-500/15" />
                   )}
 
                   {/* Active Data Bar */}
                   {hasHours && (
                     <div
-                      className="w-full rounded-full bg-[#12BFA5] dark:bg-[#35E0BE] transition-all duration-500 shadow-sm"
+                      className={`w-full rounded-full transition-all duration-500 ${
+                        day.isToday
+                          ? 'bg-gradient-to-t from-emerald-500 to-teal-400 shadow-[0_0_10px_rgba(45,212,191,0.5)]'
+                          : 'bg-gradient-to-t from-emerald-600/70 to-teal-400/70'
+                      }`}
                       style={{
                         height: `${barHeight}%`,
                         minHeight: '8px',
@@ -85,14 +91,14 @@ export function WeeklyBarChart({
                   <span
                     className={`text-xs font-bold ${
                       day.isToday
-                        ? 'text-primary font-black underline decoration-2 underline-offset-4'
-                        : 'text-text-secondary'
+                        ? 'text-emerald-600 dark:text-[#35E0BE] underline decoration-2 underline-offset-4'
+                        : 'text-slate-600 dark:text-emerald-200/70'
                     }`}
                   >
                     {day.dayName}
                   </span>
                   {day.isToday && (
-                    <span className="text-[9px] font-extrabold text-primary uppercase">
+                    <span className="text-[9px] font-extrabold uppercase text-emerald-600 dark:text-[#35E0BE]">
                       Today
                     </span>
                   )}
@@ -103,70 +109,70 @@ export function WeeklyBarChart({
         </div>
 
         {totalWeekHours === 0 && (
-          <div className="text-center pt-2 pb-1 text-xs text-text-muted font-medium">
+          <div className="text-center pt-2 pb-1 text-xs font-medium text-slate-500 dark:text-emerald-200/60">
             No study sessions logged for this week yet.
           </div>
         )}
       </div>
 
-      {/* 3 Metric Chips (Cols 9–12) - Compact & Secondary */}
+      {/* 3 Metric Chips (Cols 9–12) */}
       <div className="lg:col-span-4 grid grid-cols-1 gap-3">
         {/* Topics Mastered */}
-        <div className="rounded-2xl bg-surface border border-border shadow-clay-pill dark:shadow-clay-dark-pill p-3.5 sm:p-4 flex items-center justify-between">
+        <div className={`rounded-2xl p-3.5 sm:p-4 flex items-center justify-between ${cardTheme}`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-status-fresh/15 text-status-fresh border border-status-fresh/25 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-emerald-50 text-emerald-600 border border-emerald-200/60 dark:bg-emerald-500/15 dark:border-emerald-500/25 dark:text-emerald-400">
               <Award className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-[11px] font-bold text-text-muted uppercase tracking-wider">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-emerald-200/70">
                 Topics Mastered
               </div>
-              <div className="text-lg font-black text-text-primary mt-0.5">
+              <div className="text-lg font-black mt-0.5 text-slate-800 dark:text-white">
                 {topicsMastered} Units
               </div>
             </div>
           </div>
-          <span className="text-[10px] font-bold text-status-fresh px-2 py-0.5 rounded-full bg-status-fresh/10 border border-status-fresh/20">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25">
             FSRS Retained
           </span>
         </div>
 
         {/* Reviews Due */}
-        <div className="rounded-2xl bg-surface border border-border shadow-clay-pill dark:shadow-clay-dark-pill p-3.5 sm:p-4 flex items-center justify-between">
+        <div className={`rounded-2xl p-3.5 sm:p-4 flex items-center justify-between ${cardTheme}`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-status-fading/15 text-status-fading border border-status-fading/25 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-amber-50 text-amber-600 border border-amber-200/60 dark:bg-amber-500/15 dark:border-amber-500/25 dark:text-amber-400">
               <RotateCcw className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-[11px] font-bold text-text-muted uppercase tracking-wider">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-emerald-200/70">
                 Reviews Due
               </div>
-              <div className="text-lg font-black text-text-primary mt-0.5">
+              <div className="text-lg font-black mt-0.5 text-slate-800 dark:text-white">
                 {reviewsDue} Pending
               </div>
             </div>
           </div>
-          <span className="text-[10px] font-bold text-status-fading px-2 py-0.5 rounded-full bg-status-fading/10 border border-status-fading/20">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/25">
             Spaced Queue
           </span>
         </div>
 
         {/* Day Streak */}
-        <div className="rounded-2xl bg-surface border border-border shadow-clay-pill dark:shadow-clay-dark-pill p-3.5 sm:p-4 flex items-center justify-between">
+        <div className={`rounded-2xl p-3.5 sm:p-4 flex items-center justify-between ${cardTheme}`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-rose-500/15 text-rose-500 border border-rose-500/25 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-rose-50 text-rose-600 border border-rose-200/60 dark:bg-rose-500/15 dark:border-rose-500/25 dark:text-rose-400">
               <Flame className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-[11px] font-bold text-text-muted uppercase tracking-wider">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-emerald-200/70">
                 Study Streak
               </div>
-              <div className="text-lg font-black text-text-primary mt-0.5">
+              <div className="text-lg font-black mt-0.5 text-slate-800 dark:text-white">
                 {dayStreak} {dayStreak === 1 ? 'Day' : 'Days'}
               </div>
             </div>
           </div>
-          <span className="text-[10px] font-bold text-rose-500 px-2 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200/60 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/25">
             {dayStreak > 0 ? 'Active 🔥' : 'Start Today'}
           </span>
         </div>
@@ -174,4 +180,3 @@ export function WeeklyBarChart({
     </div>
   );
 }
-

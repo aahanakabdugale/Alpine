@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { User, ChevronDown, Check, UserPlus, Sparkles, GraduationCap } from 'lucide-react';
+import { User, ChevronDown, Check, UserPlus, GraduationCap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStudentProfiles } from '@/hooks/useStudentProfiles';
 
@@ -73,54 +73,42 @@ export function ProfileSwitcher() {
     }
   };
 
-  const progressPercent = activeProfile && activeProfile.total_units > 0
-    ? Math.round((activeProfile.completed_units / activeProfile.total_units) * 100)
-    : 0;
-
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Trigger Button */}
+      {/* 1. Trigger Pill Button (Matches adjacent controls height) */}
       <button
         ref={triggerRef}
         type="button"
         onClick={handleToggle}
         disabled={loading}
-        className="group flex items-center gap-3 px-3.5 py-2 rounded-2xl bg-surface-soft border border-border shadow-clay-pill dark:shadow-clay-dark-pill hover:shadow-clay-hover dark:hover:shadow-clay-dark-hover active:shadow-clay-pressed dark:active:shadow-clay-dark-pressed transition-all duration-200 text-text-primary text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 dark:focus-visible:ring-offset-[#143B35]"
+        className="group flex items-center gap-2.5 h-10 px-3 rounded-2xl bg-surface border border-border shadow-clay-pill dark:shadow-clay-dark-pill hover:shadow-clay-hover dark:hover:shadow-clay-dark-hover active:shadow-clay-pressed dark:active:shadow-clay-dark-pressed transition-all duration-200 text-text-primary text-xs font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer shrink-0"
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-label="Learner profile menu"
       >
-        <div className="w-8 h-8 rounded-xl bg-primary text-canvas flex items-center justify-center font-bold text-xs shadow-inner shrink-0">
+        {/* Avatar Circle */}
+        <div className="w-7 h-7 rounded-full bg-primary text-canvas flex items-center justify-center font-bold text-xs shadow-inner shrink-0">
           {activeProfile?.display_name ? (
             activeProfile.display_name.charAt(0).toUpperCase()
           ) : (
-            <User className="w-4 h-4" />
+            <User className="w-3.5 h-3.5" />
           )}
         </div>
 
-        <div className="text-left hidden sm:block">
-          <div className="text-xs font-bold text-text-primary leading-tight truncate max-w-[140px]">
-            {activeProfile?.display_name || (loading ? 'Loading...' : 'Select Learner')}
-          </div>
-          <div className="text-[11px] text-text-muted flex items-center gap-1.5 mt-0.5">
-            <span className="font-mono text-primary font-bold">
-              {activeProfile ? `${activeProfile.completed_units}/${activeProfile.total_units}` : '0/0'}
-            </span>
-            <span>units</span>
-            {activeProfile && activeProfile.total_units > 0 && (
-              <span className="opacity-70">• {progressPercent}%</span>
-            )}
-          </div>
-        </div>
+        {/* User Display Name */}
+        <span className="truncate max-w-[140px] text-xs font-bold text-text-primary">
+          {activeProfile?.display_name || (loading ? 'Loading...' : 'Select Profile')}
+        </span>
 
+        {/* Vertically Centered Chevron */}
         <ChevronDown
-          className={`w-4 h-4 text-text-muted transition-transform duration-200 shrink-0 ${
+          className={`w-3.5 h-3.5 text-text-muted transition-transform duration-200 shrink-0 ${
             isOpen ? 'rotate-180 text-primary' : 'group-hover:text-text-primary'
           }`}
         />
       </button>
 
-      {/* Dropdown Menu */}
+      {/* 2. Dropdown Menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -130,32 +118,29 @@ export function ProfileSwitcher() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -6 }}
             transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-            className="absolute right-0 top-full mt-2 w-80 sm:w-88 max-w-[calc(100vw-1.5rem)] max-h-[min(28rem,calc(100vh-5rem))] flex flex-col rounded-3xl bg-surface border border-border shadow-clay-popover dark:shadow-clay-dark-popover z-50 overflow-hidden"
+            className="absolute right-0 top-full mt-2 w-72 sm:w-80 max-w-[calc(100vw-1.5rem)] max-h-[min(26rem,calc(100vh-5rem))] flex flex-col rounded-3xl bg-surface border border-border shadow-clay-popover dark:shadow-clay-dark-popover z-50 overflow-hidden backdrop-blur-md"
             style={{ backgroundColor: 'var(--surface)' }}
           >
-            {/* 1. Stationary Header */}
+            {/* Header */}
             <div
               className="shrink-0 px-4 py-3.5 border-b border-border bg-surface"
               style={{ backgroundColor: 'var(--surface)' }}
             >
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-black uppercase tracking-wider text-text-primary flex items-center gap-1.5 min-w-0">
-                  <GraduationCap className="w-4 h-4 text-primary shrink-0" />
-                  <span className="truncate">Learner Profiles</span>
-                </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-soft text-text-secondary border border-border shrink-0">
-                  Local SQLite
+              <div className="flex items-center gap-2">
+                <GraduationCap className="w-4 h-4 text-primary shrink-0" />
+                <span className="text-[11px] font-black uppercase tracking-wider text-text-primary">
+                  Switch Profile
                 </span>
               </div>
-              <p className="text-[11px] text-text-secondary mt-1 leading-snug">
-                Switch student persona to view tailored schedules.
+              <p className="text-xs text-text-secondary mt-1">
+                Select a profile to continue.
               </p>
             </div>
 
-            {/* 2. Independently Scrollable Profile List */}
+            {/* Scrollable Profile List with sleek custom scrollbar */}
             <div
               ref={listRef}
-              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-2.5 space-y-1.5"
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-2 space-y-1 scrollbar-thin scrollbar-thumb-emerald-500/20 scrollbar-track-transparent"
               style={{ backgroundColor: 'var(--surface)' }}
             >
               {profiles.length === 0 ? (
@@ -165,9 +150,6 @@ export function ProfileSwitcher() {
               ) : (
                 profiles.map((profile) => {
                   const isActive = profile.id === activeProfile?.id;
-                  const pct = profile.total_units > 0
-                    ? Math.round((profile.completed_units / profile.total_units) * 100)
-                    : 0;
 
                   return (
                     <button
@@ -181,15 +163,15 @@ export function ProfileSwitcher() {
                         setIsOpen(false);
                         triggerRef.current?.focus();
                       }}
-                      className={`w-full text-left p-3 rounded-2xl flex items-center gap-3 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 dark:focus-visible:ring-offset-[#143B35] ${
+                      className={`w-full text-left px-3 py-2.5 rounded-2xl flex items-center justify-between gap-3 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
                         isActive
                           ? 'bg-surface-soft shadow-clay-pressed dark:shadow-clay-dark-pressed border border-primary/50 text-text-primary'
                           : 'bg-surface hover:bg-surface-hover/70 border border-transparent hover:border-border/60 text-text-secondary hover:text-text-primary'
                       }`}
                     >
-                      {/* Avatar */}
+                      {/* Left: Avatar initial box */}
                       <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${
                           isActive
                             ? 'bg-primary text-canvas shadow-sm'
                             : 'bg-surface-soft text-text-secondary border border-border'
@@ -198,38 +180,19 @@ export function ProfileSwitcher() {
                         {profile.display_name.charAt(0).toUpperCase()}
                       </div>
 
-                      {/* Learner Info & Micro Progress */}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs font-bold text-text-primary truncate">
-                            {profile.display_name}
-                          </span>
-                          <span className="font-mono text-[11px] font-black text-primary shrink-0">
-                            {pct}%
-                          </span>
-                        </div>
+                      {/* Center: Profile name */}
+                      <span className="text-xs font-bold text-text-primary truncate flex-1 min-w-0">
+                        {profile.display_name}
+                      </span>
 
-                        {/* Micro Progress Bar */}
-                        <div className="w-full bg-surface-inset h-1.5 rounded-full overflow-hidden mt-1 shadow-clay-inset dark:shadow-clay-dark-inset">
-                          <div
-                            className="bg-primary h-full rounded-full transition-all duration-300"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-
-                        <div className="text-[10px] text-text-muted mt-0.5">
-                          {profile.completed_units} of {profile.total_units} units completed
-                        </div>
-                      </div>
-
-                      {/* Selection Check Indicator */}
-                      <div className="shrink-0 flex items-center pl-0.5">
+                      {/* Right: Radio/Check Indicator */}
+                      <div className="shrink-0 flex items-center">
                         {isActive ? (
                           <div className="w-5 h-5 rounded-full bg-primary text-canvas flex items-center justify-center shadow-sm">
                             <Check className="w-3 h-3 stroke-[3]" />
                           </div>
                         ) : (
-                          <div className="w-5 h-5 rounded-full border border-border/80" />
+                          <div className="w-5 h-5 rounded-full border-2 border-border/80" />
                         )}
                       </div>
                     </button>
@@ -238,7 +201,7 @@ export function ProfileSwitcher() {
               )}
             </div>
 
-            {/* 3. Stationary Footer: Create Profile Link */}
+            {/* Footer Action: Add Profile */}
             <div
               className="shrink-0 p-3 border-t border-border bg-surface"
               style={{ backgroundColor: 'var(--surface)' }}
@@ -250,8 +213,7 @@ export function ProfileSwitcher() {
                 className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-2xl bg-surface-soft hover:bg-surface-hover border border-border text-xs font-bold text-text-primary hover:text-primary shadow-clay-pill dark:shadow-clay-dark-pill transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 <UserPlus className="w-4 h-4 text-primary shrink-0" />
-                <span>Create New Learner Profile</span>
-                <Sparkles className="w-3.5 h-3.5 text-status-fading shrink-0" />
+                <span>Add Profile</span>
               </Link>
             </div>
           </motion.div>

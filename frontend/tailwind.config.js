@@ -72,6 +72,13 @@ export default {
         'clay-dark-btn': '0 4px 14px -2px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 -1px 2px rgba(0, 0, 0, 0.2)',
         'clay-dark-inset': 'inset 0 2px 6px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(0, 0, 0, 0.5)',
         'clay-dark-popover': '0 18px 40px rgba(0, 0, 0, 0.55), 0 6px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+
+        // Glassmorphic Elevation Shadows (Dark Deep Mode)
+        'glass-card': '0 8px 32px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(45, 212, 191, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06)',
+        'glass-hover': '0 16px 48px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(45, 212, 191, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.09)',
+        'glass-pill': '0 4px 16px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(45, 212, 191, 0.1)',
+        'glow-btn': '0 0 20px rgba(45, 212, 191, 0.35), 0 4px 12px rgba(0, 0, 0, 0.3)',
+        'glow-btn-hover': '0 0 32px rgba(45, 212, 191, 0.55), 0 6px 18px rgba(0, 0, 0, 0.35)',
       },
     },
   },
