@@ -38,6 +38,7 @@ export function ClayStudyCard({ task, onCheckInSuccess }: ClayStudyCardProps) {
     if (isSubmitting) return;
     setIsSubmitting(true);
     setSelectedRating(rating);
+    setIsCompleted(true); // Optimistic immediate completion
 
     const payload: CheckInRequest = {
       unit_id: unitId,
@@ -48,7 +49,6 @@ export function ClayStudyCard({ task, onCheckInSuccess }: ClayStudyCardProps) {
     try {
       const response = await apiClient.post<CheckInResponse>('/schedule/check-in', payload);
       const data = response.data;
-      setIsCompleted(true);
 
       toast.success('Study session checked in!', {
         description: `Confidence: ${rating}/5 • Stability: ${data.stability_days.toFixed(1)} days • Adapted ${data.recalculated_units_count} remaining units`,
@@ -59,10 +59,11 @@ export function ClayStudyCard({ task, onCheckInSuccess }: ClayStudyCardProps) {
       }
     } catch (err: unknown) {
       console.error('Check-in error:', err);
+      setIsCompleted(false); // Rollback on failure
+      setSelectedRating(null);
       toast.error('Failed to log check-in', {
         description: err instanceof Error ? err.message : 'Please check backend connectivity',
       });
-      setSelectedRating(null);
     } finally {
       setIsSubmitting(false);
     }

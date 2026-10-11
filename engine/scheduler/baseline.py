@@ -110,6 +110,7 @@ def build_schedule(
     auto_slice: bool = False,
     enable_interleaving: bool = True,
     max_time_in_seconds: float = 30.0,
+    relative_gap_limit: float = 0.05,
 ) -> list[ScheduleEntry]:
     # 1. Fast Availability Pre-Check
     largest_single_day = max((a.hours_available for a in request.availability), default=0.0)
@@ -186,11 +187,10 @@ def build_schedule(
     # 4. Decision Matrix: Boolean Indicators (assigned[u, d] == 1 if unit u on day d)
     assigned = {}
     for i, u in enumerate(units):
+        bools = [model.NewBoolVar(f"assigned_{u.unit_id}_{d}") for d in range(horizon_days)]
+        model.AddMapDomain(day_vars[i], bools, 0)
         for d in range(horizon_days):
-            b = model.NewBoolVar(f"assigned_{u.unit_id}_{d}")
-            model.Add(day_vars[i] == d).OnlyEnforceIf(b)
-            model.Add(day_vars[i] != d).OnlyEnforceIf(b.Not())
-            assigned[(i, d)] = b
+            assigned[(i, d)] = bools[d]
 
     # 5. Knapsack Constraints (Hours, Cognitive Load, and Interleaving)
     distinct_subjects = {u.subject_id for u in units}
@@ -255,8 +255,16 @@ def build_schedule(
     # 8. Solve
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = max_time_in_seconds
+    solver.parameters.cp_model_probing_level = 0
+    if relative_gap_limit is not None and relative_gap_limit > 0:
+        solver.parameters.relative_gap_limit = relative_gap_limit
     solver.parameters.num_search_workers = 8
     status = solver.Solve(model)
+
+    # If first pass did not reach a feasible state within the fast time cap, retry with extra slack
+    if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+        solver.parameters.max_time_in_seconds = max_time_in_seconds + 10.0
+        status = solver.Solve(model)
 
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         raise RuntimeError(

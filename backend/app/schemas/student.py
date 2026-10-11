@@ -38,7 +38,7 @@ class DailyAvailabilityItem(BaseModel):
 
 class StudentOnboardRequest(BaseModel):
     student_id: str | None = Field(default=None, description="Optional student ID; falls back to active student")
-    elective_id: str = Field(..., description="Chosen elective subject ID")
+    elective_id: str | None = Field(default=None, description="Optional chosen elective subject ID")
     honors_id: str | None = Field(default=None, description="Optional chosen honors subject ID")
     availability: list[DailyAvailabilityItem] = Field(..., min_length=7, max_length=7, description="7-day weekly availability matrix")
     start_date: date = Field(default_factory=date.today, description="Semester or study start date")

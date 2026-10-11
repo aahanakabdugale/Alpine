@@ -28,6 +28,7 @@ class ScheduleEntryOut(BaseModel):
     assessment_phase: str | None = None
     est_hours: float | None = None
     est_difficulty: int | None = None
+    is_overrun: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -40,12 +41,22 @@ class ExamCountdownItem(BaseModel):
     days_remaining: int
 
 
+class MemoryHealthStats(BaseModel):
+    fresh_count: int = 0
+    fading_count: int = 0
+    review_count: int = 0
+
+
 class TodayScheduleResponse(BaseModel):
     date: date
     scheduled_hours: float
     available_hours: float
     tasks: list[ScheduleEntryOut]
     exam_countdowns: list[ExamCountdownItem]
+    triage_warning: bool = False
+    overrun_units_count: int = 0
+    triage_message: str | None = None
+    memory_health: MemoryHealthStats = Field(default_factory=MemoryHealthStats)
 
 
 class CheckInRequest(BaseModel):

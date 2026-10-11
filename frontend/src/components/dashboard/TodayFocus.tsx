@@ -92,11 +92,12 @@ export function TodayFocus() {
   const totalTasks = tasks.length;
   const progressPct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
+  const dateObj = data?.date ? new Date(data.date + 'T00:00:00') : new Date();
   const todayFormatted = new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
     month: 'short',
     day: 'numeric',
-  }).format(new Date());
+  }).format(dateObj);
 
   return (
     <div className="space-y-8">

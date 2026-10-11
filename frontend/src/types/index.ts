@@ -119,6 +119,7 @@ export interface ScheduleEntryOut {
   assessment_phase?: string | null;
   est_hours: number | null;
   est_difficulty: number | null;
+  is_overrun?: boolean;
 }
 
 export interface ExamCountdownItem {
@@ -129,12 +130,35 @@ export interface ExamCountdownItem {
   days_remaining: number;
 }
 
+export interface MemoryHealthStats {
+  fresh_count: number;
+  fading_count: number;
+  review_count: number;
+}
+
 export interface TodayScheduleResponse {
   date: string;
   scheduled_hours: number;
   available_hours: number;
   tasks: ScheduleEntryOut[];
   exam_countdowns: ExamCountdownItem[];
+  triage_warning?: boolean;
+  overrun_units_count?: number;
+  triage_message?: string | null;
+  memory_health?: MemoryHealthStats;
+}
+
+export interface DevStatusResponse {
+  simulated_date: string;
+  real_date: string;
+  is_simulated: boolean;
+  student_id: string;
+  student_name: string;
+  total_units: number;
+  completed_units: number;
+  planned_units: number;
+  overrun_units_count: number;
+  triage_warning: boolean;
 }
 
 export interface CheckInRequest {

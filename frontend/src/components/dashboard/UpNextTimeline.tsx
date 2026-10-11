@@ -25,12 +25,19 @@ const cardTheme = "transition-all duration-300 bg-white/85 text-slate-800 border
 export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps) {
   const [activeCheckInTaskId, setActiveCheckInTaskId] = useState<string | null>(null);
   const [submittingTaskId, setSubmittingTaskId] = useState<string | null>(null);
+  const [optimisticDoneIds, setOptimisticDoneIds] = useState<Set<string>>(new Set());
 
-  const nextPendingIndex = tasks.findIndex((t) => t.status !== 'done');
+  const nextPendingIndex = tasks.findIndex(
+    (t) => t.status !== 'done' && !optimisticDoneIds.has(t.id)
+  );
 
   const handleRate = async (task: ScheduleEntryOut, rating: number) => {
     if (submittingTaskId) return;
     setSubmittingTaskId(task.id);
+
+    // Optimistic UI update: instantly close popover and mark task completed
+    setOptimisticDoneIds((prev) => new Set(prev).add(task.id));
+    setActiveCheckInTaskId(null);
 
     const unitId = task.subtopic_id ? `subtopic:${task.subtopic_id}` : `topic:${task.topic_id}`;
     const payload: CheckInRequest = {
@@ -44,9 +51,14 @@ export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps)
       toast.success('Study session checked in!', {
         description: `Confidence: ${rating}/5 • Adapted ${response.data.recalculated_units_count} remaining units`,
       });
-      setActiveCheckInTaskId(null);
       onCheckInSuccess();
     } catch (err: unknown) {
+      // Revert optimistic update on error
+      setOptimisticDoneIds((prev) => {
+        const next = new Set(prev);
+        next.delete(task.id);
+        return next;
+      });
       console.error('Check-in error:', err);
       toast.error('Failed to log check-in', {
         description: err instanceof Error ? err.message : 'Please check connection',
@@ -90,7 +102,7 @@ export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps)
         <div className="absolute left-2.5 top-3 bottom-3 w-0.5 bg-slate-200 dark:bg-emerald-500/15" />
 
         {tasks.map((task, index) => {
-          const isDone = task.status === 'done';
+          const isDone = task.status === 'done' || optimisticDoneIds.has(task.id);
           const isCurrent = index === nextPendingIndex;
           const isExpanded = activeCheckInTaskId === task.id;
           const hours = task.est_hours ?? 1.0;

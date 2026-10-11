@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Clock,
   BookMarked,
@@ -22,8 +22,13 @@ interface TodayFocusCardProps {
 export function TodayFocusCard({ task, onCheckInSuccess }: TodayFocusCardProps) {
   const [showRatingBar, setShowRatingBar] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [optimisticDone, setOptimisticDone] = useState(false);
 
-  if (!task) {
+  useEffect(() => {
+    setOptimisticDone(false);
+  }, [task?.id]);
+
+  if (!task || optimisticDone) {
     return (
       <div className="rounded-3xl p-6 sm:p-7 flex flex-col justify-between h-full text-center space-y-4 transition-all duration-300 bg-white/85 text-slate-800 border border-emerald-100 shadow-[0_10px_30px_rgba(16,185,129,0.06)] backdrop-blur-md dark:bg-[#06201c]/80 dark:text-emerald-50 dark:border-emerald-500/15 dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] dark:backdrop-blur-md">
         <div className="flex items-center justify-between">
@@ -31,16 +36,20 @@ export function TodayFocusCard({ task, onCheckInSuccess }: TodayFocusCardProps) 
             Today's Focus
           </h2>
           <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 dark:bg-emerald-500/15 dark:text-teal-300 dark:border-emerald-500/20">
-            Standby
+            {optimisticDone ? 'Checked In' : 'Standby'}
           </span>
         </div>
         <div className="my-auto py-8">
           <div className="w-14 h-14 rounded-3xl flex items-center justify-center mx-auto mb-3 bg-emerald-50 text-emerald-600 border border-emerald-200/60 dark:bg-emerald-500/15 dark:text-teal-300 dark:border-emerald-500/20">
-            <CheckCircle2 className="w-7 h-7" />
+            <CheckCircle2 className="w-7 h-7 text-primary animate-bounce" />
           </div>
-          <h3 className="text-base font-bold text-slate-800 dark:text-white">All Caught Up!</h3>
+          <h3 className="text-base font-bold text-slate-800 dark:text-white">
+            {optimisticDone ? 'Session Checked In!' : 'All Caught Up!'}
+          </h3>
           <p className="text-xs max-w-xs mx-auto mt-1 text-slate-600 dark:text-emerald-200/80">
-            No pending study units remaining for today. Great job staying ahead of your academic horizon.
+            {optimisticDone
+              ? 'Great job! Your retention stability has been refreshed and schedule adapted.'
+              : 'No pending study units remaining for today. Great job staying ahead of your academic horizon.'}
           </p>
         </div>
       </div>
@@ -56,6 +65,8 @@ export function TodayFocusCard({ task, onCheckInSuccess }: TodayFocusCardProps) 
   const handleRate = async (rating: number) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
+    setOptimisticDone(true);
+    setShowRatingBar(false);
 
     const unitId = task.subtopic_id ? `subtopic:${task.subtopic_id}` : `topic:${task.topic_id}`;
     const payload: CheckInRequest = {
@@ -69,10 +80,10 @@ export function TodayFocusCard({ task, onCheckInSuccess }: TodayFocusCardProps) 
       toast.success('Study session checked in!', {
         description: `Confidence: ${rating}/5 • Stability: ${response.data.stability_days.toFixed(1)} days`,
       });
-      setShowRatingBar(false);
       onCheckInSuccess();
     } catch (err: unknown) {
       console.error('Check-in error:', err);
+      setOptimisticDone(false);
       toast.error('Failed to log check-in', {
         description: err instanceof Error ? err.message : 'Please check connection',
       });

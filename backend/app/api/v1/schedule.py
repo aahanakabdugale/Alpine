@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, get_active_student
+from app.core.clock import get_today
 from app.db import models
 from app.schemas.schedule import (
     ScheduleEntryOut,
@@ -20,6 +21,7 @@ from app.schemas.schedule import (
     CheckInResponse,
     ProgressResponse,
     ProgressSubjectStats,
+    MemoryHealthStats,
 )
 from app.services.engine_bridge import EngineBridge
 from engine.mastery.confidence_model import update_memory_state, compute_retrievability
@@ -32,7 +34,7 @@ def _hydrate_schedule_entries(
     entries: list[models.ScheduleEntry],
     db: Session,
 ) -> list[ScheduleEntryOut]:
-    """Helper to populate topic, subtopic, and subject names on schedule entries."""
+    """Helper to populate topic, subtopic, subject names, and overrun status on schedule entries."""
     if not entries:
         return []
 
@@ -41,6 +43,10 @@ def _hydrate_schedule_entries(
     subtopics = {s.id: s for s in db.query(models.Subtopic).all()}
     modules = {m.id: m for m in db.query(models.Module).all()}
     subjects = {s.id: s for s in db.query(models.Subject).all()}
+    end_sem_exams = {
+        ed.subject_id: ed.exam_date
+        for ed in db.query(models.ExamDate).filter(models.ExamDate.exam_type == "end_sem").all()
+    }
 
     results: list[ScheduleEntryOut] = []
     for e in entries:
@@ -52,6 +58,10 @@ def _hydrate_schedule_entries(
         title = sub.name if sub else (top.name if top else "Scheduled Study Task")
         est_hours = sub.est_hours if sub else (top.est_hours if top else 1.0)
         est_diff = top.est_difficulty if top else 3
+
+        subj_id = subj.id if subj else None
+        end_sem_date = end_sem_exams.get(subj_id) if subj_id else None
+        is_overrun = bool(end_sem_date and e.scheduled_date > end_sem_date)
 
         results.append(
             ScheduleEntryOut(
@@ -65,13 +75,14 @@ def _hydrate_schedule_entries(
                 title=title,
                 topic_name=top.name if top else None,
                 subtopic_name=sub.name if sub else None,
-                subject_id=subj.id if subj else None,
+                subject_id=subj_id,
                 subject_name=subj.name if subj else None,
                 module_id=mod.id if mod else None,
                 module_name=mod.name if mod else None,
                 assessment_phase=mod.assessment_phase if mod else None,
                 est_hours=est_hours,
                 est_difficulty=est_diff,
+                is_overrun=is_overrun,
             )
         )
     return results
@@ -111,7 +122,7 @@ def get_today_schedule(
     Returns today's scheduled tasks, target study hours, available capacity,
     and upcoming exam countdowns for the active student profile.
     """
-    today = date.today()
+    today = get_today()
 
     # Query entries for today
     today_entries = (
@@ -158,12 +169,71 @@ def get_today_schedule(
         for e in exam_rows
     ]
 
+    # Academic Triage Check: count how many planned entries spill past their subject's end-sem date
+    all_planned = (
+        db.query(models.ScheduleEntry)
+        .filter(
+            models.ScheduleEntry.student_id == student.id,
+            models.ScheduleEntry.status == "planned",
+        )
+        .all()
+    )
+    hydrated_planned = _hydrate_schedule_entries(all_planned, db)
+    overrun_count = sum(1 for p in hydrated_planned if p.is_overrun)
+    triage_warning = overrun_count > 0
+    triage_message = (
+        f"Academic Triage Alert: {overrun_count} syllabus units cannot be completed before your End-Semester exams at your current pace. Please increase your weekly study availability."
+        if triage_warning
+        else None
+    )
+
+    # Real FSRS Memory Health calculation based on student TopicConfidence records
+    confidence_records = (
+        db.query(models.TopicConfidence)
+        .filter(models.TopicConfidence.student_id == student.id)
+        .all()
+    )
+    fresh_c = 0
+    fading_c = 0
+    review_c = 0
+    for c in confidence_records:
+        if c.memory_state:
+            try:
+                mem = MemoryState(**c.memory_state)
+                r = compute_retrievability(mem, today)
+                if r >= 0.85:
+                    fresh_c += 1
+                elif r >= 0.70:
+                    fading_c += 1
+                else:
+                    review_c += 1
+            except Exception:
+                fresh_c += 1
+        else:
+            days_elapsed = max((today - c.last_updated).days, 0)
+            if days_elapsed <= 3:
+                fresh_c += 1
+            elif days_elapsed <= 10:
+                fading_c += 1
+            else:
+                review_c += 1
+
+    memory_health = MemoryHealthStats(
+        fresh_count=fresh_c,
+        fading_count=fading_c,
+        review_count=review_c,
+    )
+
     return TodayScheduleResponse(
         date=today,
         scheduled_hours=scheduled_hours,
         available_hours=available_hours,
         tasks=tasks,
         exam_countdowns=countdowns,
+        triage_warning=triage_warning,
+        overrun_units_count=overrun_count,
+        triage_message=triage_message,
+        memory_health=memory_health,
     )
 
 
@@ -179,7 +249,7 @@ def schedule_check_in(
     2. Marks corresponding ScheduleEntry as 'done'.
     3. Triggers adaptive solver re-calculation, spawning review sessions if needed.
     """
-    today = date.today()
+    today = get_today()
     top_id, sub_id, _ = EngineBridge._parse_unit_keys(payload.unit_id)
 
     # Resolve parent topic_id if only subtopic_id is present

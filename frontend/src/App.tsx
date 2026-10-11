@@ -7,6 +7,7 @@ import { Schedule } from '@/pages/Schedule';
 import { Curriculum } from '@/pages/Curriculum';
 import { Onboarding } from '@/pages/Onboarding';
 import { useTheme } from '@/hooks/useTheme';
+import { DevToolsDock } from '@/components/dev/DevToolsDock';
 
 export function App() {
   const { theme } = useTheme();
@@ -28,6 +29,7 @@ export function App() {
             </Routes>
           </main>
         </div>
+        <DevToolsDock />
         <Toaster position="bottom-right" richColors theme={theme} />
       </div>
     </BrowserRouter>

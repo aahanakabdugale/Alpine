@@ -24,9 +24,11 @@ export function useStudentProfiles() {
         if (storedId && exists) {
           setActiveProfileIdState(storedId);
         } else {
-          const fallbackId = data[0].id;
-          localStorage.setItem('active_student_id', fallbackId);
-          setActiveProfileIdState(fallbackId);
+          // If stored ID is invalid or not yet set, do not force-select demo-alex
+          if (storedId && !exists) {
+            localStorage.removeItem('active_student_id');
+          }
+          setActiveProfileIdState(null);
         }
       } else {
         localStorage.removeItem('active_student_id');
@@ -40,69 +42,49 @@ export function useStudentProfiles() {
     }
   }, []);
 
-  // Initial load without synchronous setState in effect body
+  // Initial load
   useEffect(() => {
-    let cancelled = false;
-    apiClient
-      .get<StudentSummary[]>('/students')
-      .then((response) => {
-        if (cancelled) return;
-        const data = response.data;
-        setProfiles(data);
+    fetchProfiles();
+  }, [fetchProfiles]);
 
-        const storedId = localStorage.getItem('active_student_id');
-        if (data.length > 0) {
-          const exists = data.some((p) => p.id === storedId);
-          if (storedId && exists) {
-            setActiveProfileIdState(storedId);
-          } else {
-            const fallbackId = data[0].id;
-            localStorage.setItem('active_student_id', fallbackId);
-            setActiveProfileIdState(fallbackId);
-          }
-        } else {
-          localStorage.removeItem('active_student_id');
-          setActiveProfileIdState(null);
-        }
-        setLoading(false);
-      })
-      .catch((err: unknown) => {
-        if (cancelled) return;
-        console.error('Failed to load student profiles:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch profiles');
-        setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
+  const setActiveProfileId = useCallback((id: string | null) => {
+    if (id) {
+      localStorage.setItem('active_student_id', id);
+      setActiveProfileIdState(id);
+      window.dispatchEvent(new CustomEvent('alpine:profile-switch', { detail: id }));
+    } else {
+      localStorage.removeItem('active_student_id');
+      setActiveProfileIdState(null);
+      window.dispatchEvent(new CustomEvent('alpine:profile-switch', { detail: '__CLEAR_PROFILE__' }));
+    }
   }, []);
 
-  const setActiveProfileId = useCallback((id: string) => {
-    localStorage.setItem('active_student_id', id);
-    setActiveProfileIdState(id);
-    window.dispatchEvent(new CustomEvent('alpine:profile-switch', { detail: id }));
-  }, []);
-
-  // Listen to profile switch events
+  // Listen to profile switch events and reload profile list
   useEffect(() => {
     const handleSwitch = (e: Event) => {
-      const customEvent = e as CustomEvent<string>;
-      if (customEvent.detail && customEvent.detail !== activeProfileId) {
-        setActiveProfileIdState(customEvent.detail);
+      const customEvent = e as CustomEvent<string | null>;
+      const detail = customEvent.detail;
+      if (typeof detail === 'string') {
+        if (detail === '__CLEAR_PROFILE__') {
+          setActiveProfileIdState(null);
+          localStorage.removeItem('active_student_id');
+        } else if (detail.length > 0) {
+          setActiveProfileIdState(detail);
+          localStorage.setItem('active_student_id', detail);
+        }
       }
+      fetchProfiles();
     };
 
     window.addEventListener('alpine:profile-switch', handleSwitch);
     return () => {
       window.removeEventListener('alpine:profile-switch', handleSwitch);
     };
-  }, [activeProfileId]);
+  }, [fetchProfiles]);
 
   const activeProfile = useMemo<StudentSummary | null>(() => {
-    if (!profiles.length) return null;
-    const found = profiles.find((p) => p.id === activeProfileId);
-    return found || profiles[0] || null;
+    if (!profiles.length || !activeProfileId) return null;
+    return profiles.find((p) => p.id === activeProfileId) || null;
   }, [profiles, activeProfileId]);
 
   return {

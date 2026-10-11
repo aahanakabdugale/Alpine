@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, get_active_student
+from app.core.clock import get_today
 from app.db import models
 from app.schemas.student import (
     StudentOnboardRequest,
@@ -163,7 +164,7 @@ def update_student_availability(
     recalculated_entries = EngineBridge.recalculate_adaptive_schedule(
         student_id=student.id,
         db=db,
-        today=date.today(),
+        today=get_today(),
         auto_slice=True,
     )
 

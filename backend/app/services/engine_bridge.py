@@ -281,6 +281,7 @@ class EngineBridge:
         today: date,
         auto_slice: bool = True,
         spawn_reviews: bool = True,
+        max_time_in_seconds: float = 12.0,
     ) -> list[models.ScheduleEntry]:
         """
         Runs adaptive re-planning for student, preserving done entries and
@@ -315,6 +316,7 @@ class EngineBridge:
             today=today,
             spawn_reviews=spawn_reviews,
             auto_slice=auto_slice,
+            max_time_in_seconds=max_time_in_seconds,
         )
 
         # Delete existing 'planned' rows (to be replaced by freshly solved entries)

@@ -97,12 +97,14 @@ export function TimelineCalendar() {
   }, [activeProfile?.id]);
 
   useEffect(() => {
-    const handleProfileSwitch = () => {
+    const handleUpdate = () => {
       fetchScheduleData();
     };
-    window.addEventListener('alpine:profile-switch', handleProfileSwitch);
+    window.addEventListener('alpine:profile-switch', handleUpdate);
+    window.addEventListener('alpine:dev-time-travel', handleUpdate);
     return () => {
-      window.removeEventListener('alpine:profile-switch', handleProfileSwitch);
+      window.removeEventListener('alpine:profile-switch', handleUpdate);
+      window.removeEventListener('alpine:dev-time-travel', handleUpdate);
     };
   }, [fetchScheduleData]);
 
@@ -457,6 +459,14 @@ export function TimelineCalendar() {
                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-status-fading/15 text-status-fading border border-status-fading/30 flex items-center gap-1">
                                   <RotateCcw className="w-2.5 h-2.5" />
                                   Review
+                                </span>
+                              )}
+
+                              {/* Overrun Past Exam Tag */}
+                              {item.is_overrun && (
+                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/40 flex items-center gap-1 animate-pulse">
+                                  <Flag className="w-2.5 h-2.5" />
+                                  Past End-Sem
                                 </span>
                               )}
 

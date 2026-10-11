@@ -3,6 +3,7 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { useStudentProfiles } from '@/hooks/useStudentProfiles';
 import { HeroBanner } from '@/components/dashboard/HeroBanner';
+import { AcademicTriageBanner } from '@/components/dashboard/AcademicTriageBanner';
 import { DailyProgressCard } from '@/components/dashboard/DailyProgressCard';
 import { TodayFocusCard } from '@/components/dashboard/TodayFocusCard';
 import { WeeklyBarChart, type DayStudyStat } from '@/components/dashboard/WeeklyBarChart';
@@ -37,37 +38,16 @@ export function DashboardView() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    Promise.all([
-      apiClient.get<TodayScheduleResponse>('/schedule/today'),
-      apiClient.get<ScheduleEntryOut[]>('/schedule').catch(() => ({ data: [] as ScheduleEntryOut[] })),
-    ])
-      .then(([todayRes, allSchedRes]) => {
-        if (cancelled) return;
-        setTodayData(todayRes.data);
-        setAllEntries(allSchedRes.data || []);
-        setError(null);
-        setLoading(false);
-      })
-      .catch((err: unknown) => {
-        if (cancelled) return;
-        console.error('Failed to load dashboard data:', err);
-        setError(err instanceof Error ? err.message : 'Could not fetch dashboard metrics');
-        setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [activeProfile?.id]);
+    fetchDashboardData();
+  }, [activeProfile?.id, fetchDashboardData]);
 
   useEffect(() => {
-    const handleProfileSwitch = () => {
+    const handleDevUpdate = () => {
       fetchDashboardData();
     };
-    window.addEventListener('alpine:profile-switch', handleProfileSwitch);
+    window.addEventListener('alpine:dev-time-travel', handleDevUpdate);
     return () => {
-      window.removeEventListener('alpine:profile-switch', handleProfileSwitch);
+      window.removeEventListener('alpine:dev-time-travel', handleDevUpdate);
     };
   }, [fetchDashboardData]);
 
@@ -86,8 +66,9 @@ export function DashboardView() {
   }, [allEntries]);
 
   const reviewsDue = useMemo(() => {
-    return allEntries.filter((e) => e.is_review && e.status !== 'done').length;
-  }, [allEntries]);
+    const todayStr = todayData?.date ? String(todayData.date) : new Date().toISOString().slice(0, 10);
+    return allEntries.filter((e) => e.is_review && e.status !== 'done' && e.scheduled_date <= todayStr).length;
+  }, [allEntries, todayData?.date]);
 
   // Real Consecutive Day Streak
   const dayStreak = useMemo(() => {
@@ -175,32 +156,24 @@ export function DashboardView() {
     return result;
   }, [allEntries]);
 
-  // Real Memory Health Counts (Preserving existing FSRS retention thresholds)
+  // Real FSRS Memory Health Counts provided directly by backend mastery retention engine
   const { freshCount, fadingCount, reviewCount } = useMemo(() => {
-    const now = new Date();
-    let fresh = 0;
-    let fading = 0;
-    let review = 0;
-
-    for (const e of allEntries) {
-      if (e.status === 'done') {
-        const schedDate = new Date(`${e.scheduled_date}T00:00:00`);
-        const daysElapsed = Math.max(0, Math.floor((now.getTime() - schedDate.getTime()) / (1000 * 3600 * 24)));
-
-        if (daysElapsed <= 3) {
-          fresh++;
-        } else if (daysElapsed <= 10) {
-          fading++;
-        } else {
-          review++;
-        }
-      } else if (e.is_review) {
-        review++;
-      }
+    if (todayData?.memory_health) {
+      return {
+        freshCount: todayData.memory_health.fresh_count,
+        fadingCount: todayData.memory_health.fading_count,
+        reviewCount: todayData.memory_health.review_count,
+      };
     }
 
-    return { freshCount: fresh, fadingCount: fading, reviewCount: review };
-  }, [allEntries]);
+    // Fallback if todayData is not yet loaded: completed entries are fresh by default
+    const doneEntries = allEntries.filter((e) => e.status === 'done');
+    return {
+      freshCount: doneEntries.length,
+      fadingCount: 0,
+      reviewCount: 0,
+    };
+  }, [todayData?.memory_health, allEntries]);
 
   const handleContinueStudying = () => {
     const targetElement = document.getElementById('up-next-section');
@@ -230,6 +203,14 @@ export function DashboardView() {
         displayName={activeProfile?.display_name || 'Active Learner'}
         upcomingExam={nextUpcomingExam}
       />
+
+      {/* Academic Triage Warning Banner */}
+      {todayData?.triage_warning && (
+        <AcademicTriageBanner
+          overrunUnitsCount={todayData.overrun_units_count || 0}
+          message={todayData.triage_message}
+        />
+      )}
 
       {/* Error Notice */}
       {error && (

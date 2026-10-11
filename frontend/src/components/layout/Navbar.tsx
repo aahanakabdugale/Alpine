@@ -28,8 +28,8 @@ export function Navbar() {
           </div>
         </Link>
 
-        {/* Right: Theme Toggle + Profile Switcher */}
-        <div className="flex items-center gap-3 shrink-0">
+        {/* Right: Theme Toggle + Profile Split Button (Default: New Profile + Side Dropdown to load demo data) */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <ThemeToggle />
           <ProfileSwitcher />
         </div>

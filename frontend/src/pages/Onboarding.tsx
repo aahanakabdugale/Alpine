@@ -21,6 +21,7 @@ import type {
   StudentOnboardRequest,
   StudentOnboardResponse,
   DailyAvailabilityItem,
+  DevStatusResponse,
 } from '@/types';
 
 const DAYS_OF_WEEK = [
@@ -65,13 +66,20 @@ export function Onboarding() {
     honors: [],
   });
 
-  // Fetch subjects from backend
+  // Fetch subjects and current simulated date from backend
   useEffect(() => {
     async function loadSubjects() {
       setLoadingSubjects(true);
       try {
-        const response = await apiClient.get<SubjectsGrouped>('/curriculum/subjects');
+        const [response, devStatus] = await Promise.all([
+          apiClient.get<SubjectsGrouped>('/curriculum/subjects'),
+          apiClient.get<DevStatusResponse>('/dev/status').catch(() => null),
+        ]);
         setGroupedSubjects(response.data);
+
+        if (devStatus?.data?.simulated_date) {
+          setStartDate(devStatus.data.simulated_date);
+        }
 
         if (response.data.electives.length > 0) {
           setSelectedElectiveId(response.data.electives[0].id);
@@ -146,12 +154,12 @@ export function Onboarding() {
         onboardPayload
       );
 
-      // 4. Save active student ID to localStorage
+      // 4. Ensure active student ID is persisted and switch event dispatched
       localStorage.setItem('active_student_id', newStudentId);
       window.dispatchEvent(new CustomEvent('alpine:profile-switch', { detail: newStudentId }));
 
       toast.success(`Welcome to Alpine, ${displayName.trim()}!`, {
-        description: `Generated study plan with ${onboardRes.data.total_scheduled_units} units.`,
+        description: `Generated study plan with ${onboardRes.data.total_scheduled_units} units. Set as default profile.`,
       });
 
       // 5. Navigate to Dashboard

@@ -42,6 +42,7 @@ def rebuild_schedule(
     horizon_days: int = 90,
     spawn_reviews: bool = True,
     auto_slice: bool = True,
+    max_time_in_seconds: float = 5.0,
 ) -> list[ScheduleEntry]:
     """
     request: the FULL plan request (all units across all enrolled subjects,
@@ -92,6 +93,7 @@ def rebuild_schedule(
         horizon_days=horizon_days,
         mastery_override=mastery_map,
         auto_slice=auto_slice,
+        max_time_in_seconds=max_time_in_seconds,
     )
 
     return done_entries + new_entries

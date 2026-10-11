@@ -27,7 +27,7 @@ def list_students(db: Session = Depends(get_db)):
     Returns all student profiles stored in SQLite for the Profile Switcher dropdown,
     including enrolled subject count and unit completion statistics.
     """
-    students = db.query(models.Student).order_by(models.Student.created_at.asc()).all()
+    students = db.query(models.Student).order_by(models.Student.created_at.desc()).all()
     results = []
 
     for s in students:
@@ -84,6 +84,12 @@ def delete_student(student_id: str, db: Session = Depends(get_db)):
     Deletes a student profile and cascades all enrolled subjects, availability,
     confidence ratings, and schedule entries from SQLite.
     """
+    if student_id.startswith("demo-"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Built-in demo profiles (Alex, Maya, Sam) cannot be deleted. Use DevTools to reset their schedule.",
+        )
+
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
     if not student:
         raise HTTPException(
