@@ -108,8 +108,8 @@ def build_schedule(
     mastery_override: dict[str, float] | None = None,
     max_daily_difficulty: int = MAX_DAILY_DIFFICULTY_POINTS,
     auto_slice: bool = False,
-    enable_interleaving: bool = True,
-    max_time_in_seconds: float = 30.0,
+    enable_interleaving: bool = False,
+    max_time_in_seconds: float = 8.0,
     relative_gap_limit: float = 0.05,
 ) -> list[ScheduleEntry]:
     # 1. Fast Availability Pre-Check
@@ -167,7 +167,11 @@ def build_schedule(
         effective_priority = base_priority * difficulty_multiplier
         priority_weights.append(effective_priority)
 
-        soft_deadline_days.append(max(days_until_ut, 0) if days_until_ut is not None else None)
+        # Soft UT deadline: only penalize tardiness if the UT deadline is in the future
+        if days_until_ut is not None and days_until_ut >= 0:
+            soft_deadline_days.append(days_until_ut)
+        else:
+            soft_deadline_days.append(None)
 
         # Soft Slack Triage for End-Sem:
         if end_sem_deadline:
@@ -193,7 +197,14 @@ def build_schedule(
         for d in range(horizon_days):
             assigned[(i, d)] = bools[d]
 
-    # 5. Knapsack Constraints (Hours, Cognitive Load, and Interleaving)
+    # Map exam days to their specific subjects
+    exam_subjects_by_day: dict[int, set[str]] = {}
+    for e in request.exam_dates:
+        exam_d = (e.exam_date - request.start_date).days
+        if 0 <= exam_d < horizon_days:
+            exam_subjects_by_day.setdefault(exam_d, set()).add(e.subject_id)
+
+    # 5. Knapsack Constraints (Hours, Cognitive Load, Interleaving, and Exam Day Exclusivity)
     distinct_subjects = {u.subject_id for u in units}
     has_multi_subjects = len(distinct_subjects) > 1 and enable_interleaving
 
@@ -206,16 +217,23 @@ def build_schedule(
             <= capacity
         )
 
-        # Constraint B: Daily Cognitive Load (Difficulty Cap)
+        # Constraint B: Exam Day Exclusivity (On date of exam, only tasks of that subject can be assigned)
+        if d in exam_subjects_by_day:
+            allowed_subjects = exam_subjects_by_day[d]
+            for i in range(n):
+                if units[i].subject_id not in allowed_subjects:
+                    model.Add(assigned[(i, d)] == 0)
+
+        # Constraint C: Daily Cognitive Load (Difficulty Cap)
         if capacity > 0:
             model.Add(
                 sum(units[i].est_difficulty * assigned[(i, d)] for i in range(n))
                 <= max_daily_difficulty
             )
 
-            # Constraint C: Cognitive Subject Interleaving Cap
-            # On days with >= 1.5h, avoid single-subject monopoly if multi-subjects exist
-            if has_multi_subjects and capacity >= int(round(1.5 * HOURS_SCALE)):
+            # Constraint D: Cognitive Subject Interleaving Cap
+            # On non-exam days with >= 1.5h, avoid single-subject monopoly if multi-subjects exist
+            if has_multi_subjects and capacity >= int(round(1.5 * HOURS_SCALE)) and d not in exam_subjects_by_day:
                 max_subj_cap = int(round(INTERLEAVING_CAP_RATIO * capacity))
                 for subj in distinct_subjects:
                     subj_indices = [idx for idx, un in enumerate(units) if un.subject_id == subj]
@@ -243,8 +261,10 @@ def build_schedule(
             tardiness_terms.append(tardy)
 
     # 7. Objective: Minimize (Priority-Weighted Day + Tardiness + Overrun)
+    # Strongly weight day index to pull syllabus completion as early as possible,
+    # ensuring the syllabus finishes well ahead of exams and leaving the pre-exam window for reviews.
     objective_terms = [
-        (int(priority_weights[i] * 100) + 1) * day_vars[i] for i in range(n)
+        (int(priority_weights[i] * 200) + 10) * day_vars[i] for i in range(n)
     ]
     total_penalty = (
         sum(objective_terms)

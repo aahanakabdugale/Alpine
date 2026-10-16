@@ -17,6 +17,7 @@ from app.schemas.student import (
     StudentCreate,
     StudentCreateResponse,
 )
+from app.services.engine_bridge import EngineBridge
 
 router = APIRouter(prefix="/students", tags=["Students / Profile Switcher"])
 
@@ -32,16 +33,18 @@ def list_students(db: Session = Depends(get_db)):
 
     for s in students:
         enrolled_count = len(s.enrollments)
-        completed_count = (
-            db.query(models.ScheduleEntry)
-            .filter(models.ScheduleEntry.student_id == s.id, models.ScheduleEntry.status == "done")
-            .count()
-        )
-        total_count = (
-            db.query(models.ScheduleEntry)
-            .filter(models.ScheduleEntry.student_id == s.id)
-            .count()
-        )
+        completed_count, total_count = EngineBridge.get_student_syllabus_unit_counts(s.id, db)
+        if total_count == 0:
+            completed_count = (
+                db.query(models.ScheduleEntry)
+                .filter(models.ScheduleEntry.student_id == s.id, models.ScheduleEntry.status == "done")
+                .count()
+            )
+            total_count = (
+                db.query(models.ScheduleEntry)
+                .filter(models.ScheduleEntry.student_id == s.id)
+                .count()
+            )
 
         results.append(
             StudentSummary(

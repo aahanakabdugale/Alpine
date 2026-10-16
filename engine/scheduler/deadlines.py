@@ -52,5 +52,8 @@ def compute_priority_weight(
       Equal by default -- tune later once you see real student data.
     """
     weakness = 1.0 - mastery_score
-    urgency = 0.0 if days_until_ut_deadline is None else 1.0 / (max(days_until_ut_deadline, 0) + 1)
+    if days_until_ut_deadline is None or days_until_ut_deadline < 0:
+        urgency = 0.0
+    else:
+        urgency = 1.0 / (days_until_ut_deadline + 1)
     return alpha * urgency + beta * weakness

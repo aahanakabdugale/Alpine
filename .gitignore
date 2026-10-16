@@ -116,3 +116,9 @@ dist/
 .agent/
 .gemini/
 .opencode/
+
+# ==========================================
+# Simulated Clock File
+# ==========================================
+.simulated_clock
+

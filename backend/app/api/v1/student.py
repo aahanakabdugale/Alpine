@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, get_active_student
-from app.core.clock import get_today
+from app.core.clock import get_today, set_simulated_date
 from app.db import models
 from app.schemas.student import (
     StudentOnboardRequest,
@@ -100,7 +100,11 @@ def onboard_student(
         db=db,
         start_date=payload.start_date,
         auto_slice=True,
+        max_time_in_seconds=8.0,
     )
+
+    # 4. Synchronize simulated clock to the onboarding start date
+    set_simulated_date(payload.start_date)
 
     return StudentOnboardResponse(
         message="Onboarding complete and study plan generated",

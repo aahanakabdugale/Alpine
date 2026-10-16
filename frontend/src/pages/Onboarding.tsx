@@ -157,6 +157,8 @@ export function Onboarding() {
       // 4. Ensure active student ID is persisted and switch event dispatched
       localStorage.setItem('active_student_id', newStudentId);
       window.dispatchEvent(new CustomEvent('alpine:profile-switch', { detail: newStudentId }));
+      window.dispatchEvent(new CustomEvent('alpine:dev-time-travel'));
+      window.dispatchEvent(new CustomEvent('alpine:schedule-updated'));
 
       toast.success(`Welcome to Alpine, ${displayName.trim()}!`, {
         description: `Generated study plan with ${onboardRes.data.total_scheduled_units} units. Set as default profile.`,
