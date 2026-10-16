@@ -29,6 +29,7 @@ class ScheduleEntryOut(BaseModel):
     est_hours: float | None = None
     est_difficulty: int | None = None
     is_overrun: bool = False
+    is_overdue: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -76,9 +76,17 @@ export function useStudentProfiles() {
       fetchProfiles();
     };
 
+    const handleReload = () => {
+      fetchProfiles();
+    };
+
     window.addEventListener('alpine:profile-switch', handleSwitch);
+    window.addEventListener('alpine:dev-time-travel', handleReload);
+    window.addEventListener('alpine:schedule-updated', handleReload);
     return () => {
       window.removeEventListener('alpine:profile-switch', handleSwitch);
+      window.removeEventListener('alpine:dev-time-travel', handleReload);
+      window.removeEventListener('alpine:schedule-updated', handleReload);
     };
   }, [fetchProfiles]);
 

@@ -101,7 +101,7 @@ export function MemoryHealthBar({
 
             <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-white">
               <span className="w-2.5 h-2.5 rounded-full bg-status-danger" />
-              <span>Review now ({Math.round(reviewPct)}%) · {reviewCount} topics</span>
+              <span>Decayed Topics (FSRS &lt; 70% · {Math.round(reviewPct)}%) · {reviewCount} need review</span>
             </div>
           </div>
         </div>

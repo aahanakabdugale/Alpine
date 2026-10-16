@@ -52,6 +52,7 @@ export function UpNextTimeline({ tasks, onCheckInSuccess }: UpNextTimelineProps)
         description: `Confidence: ${rating}/5 • Adapted ${response.data.recalculated_units_count} remaining units`,
       });
       onCheckInSuccess();
+      window.dispatchEvent(new CustomEvent('alpine:schedule-updated'));
     } catch (err: unknown) {
       // Revert optimistic update on error
       setOptimisticDoneIds((prev) => {

@@ -14,7 +14,7 @@ import { apiClient } from '@/lib/api';
 import { useStudentProfiles } from '@/hooks/useStudentProfiles';
 import type { ScheduleEntryOut, TodayScheduleResponse, ExamCountdownItem } from '@/types';
 
-type FilterTab = 'all' | 'planned' | 'done' | 'review';
+type FilterTab = 'all' | 'planned' | 'overdue' | 'done' | 'review';
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -43,6 +43,7 @@ export function TimelineCalendar() {
   const { activeProfile } = useStudentProfiles();
   const [entries, setEntries] = useState<ScheduleEntryOut[]>([]);
   const [exams, setExams] = useState<ExamCountdownItem[]>([]);
+  const [currentTodayIso, setCurrentTodayIso] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [filterTab, setFilterTab] = useState<FilterTab>('all');
@@ -60,6 +61,9 @@ export function TimelineCalendar() {
       setEntries(schedRes.data);
       if (todayRes && todayRes.data) {
         setExams(todayRes.data.exam_countdowns || []);
+        if (todayRes.data.date) {
+          setCurrentTodayIso(String(todayRes.data.date));
+        }
       }
     } catch (err: unknown) {
       console.error('Failed to fetch schedule:', err);
@@ -80,6 +84,9 @@ export function TimelineCalendar() {
           setEntries(schedRes.data);
           if (todayRes && todayRes.data) {
             setExams(todayRes.data.exam_countdowns || []);
+            if (todayRes.data.date) {
+              setCurrentTodayIso(String(todayRes.data.date));
+            }
           }
           setLoading(false);
         }
@@ -102,9 +109,11 @@ export function TimelineCalendar() {
     };
     window.addEventListener('alpine:profile-switch', handleUpdate);
     window.addEventListener('alpine:dev-time-travel', handleUpdate);
+    window.addEventListener('alpine:schedule-updated', handleUpdate);
     return () => {
       window.removeEventListener('alpine:profile-switch', handleUpdate);
       window.removeEventListener('alpine:dev-time-travel', handleUpdate);
+      window.removeEventListener('alpine:schedule-updated', handleUpdate);
     };
   }, [fetchScheduleData]);
 
@@ -123,7 +132,8 @@ export function TimelineCalendar() {
   const filteredEntries = useMemo(() => {
     return entries.filter((entry) => {
       // Tab filter
-      if (filterTab === 'planned' && entry.status !== 'planned') return false;
+      if (filterTab === 'planned' && (entry.status !== 'planned' || entry.is_overdue)) return false;
+      if (filterTab === 'overdue' && !entry.is_overdue) return false;
       if (filterTab === 'done' && entry.status !== 'done') return false;
       if (filterTab === 'review' && !entry.is_review) return false;
 
@@ -167,11 +177,12 @@ export function TimelineCalendar() {
   // Summary stats
   const totalUnits = entries.length;
   const completedCount = entries.filter((e) => e.status === 'done').length;
-  const plannedCount = entries.filter((e) => e.status === 'planned').length;
+  const overdueCount = entries.filter((e) => e.is_overdue).length;
+  const plannedCount = entries.filter((e) => e.status === 'planned' && !e.is_overdue).length;
   const reviewCount = entries.filter((e) => e.is_review).length;
   const totalHours = entries.reduce((acc, curr) => acc + (curr.est_hours || 1.0), 0);
 
-  const todayIso = new Date().toISOString().slice(0, 10);
+  const todayIso = currentTodayIso;
 
   return (
     <div className="space-y-8">
@@ -235,7 +246,7 @@ export function TimelineCalendar() {
             {plannedCount}
           </div>
           <div className="text-[11px] text-text-secondary mt-0.5">
-            Optimized for capacity
+            {overdueCount > 0 ? `${overdueCount} overdue units` : 'Optimized for capacity'}
           </div>
         </div>
 
@@ -260,6 +271,7 @@ export function TimelineCalendar() {
             [
               { id: 'all', label: `All (${totalUnits})` },
               { id: 'planned', label: `Planned (${plannedCount})` },
+              { id: 'overdue', label: `Overdue (${overdueCount})` },
               { id: 'done', label: `Completed (${completedCount})` },
               { id: 'review', label: `Reviews (${reviewCount})` },
             ] as const
@@ -475,6 +487,11 @@ export function TimelineCalendar() {
                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-status-fresh/15 text-status-fresh border border-status-fresh/30 flex items-center gap-1">
                                   <CheckCircle2 className="w-2.5 h-2.5" />
                                   Done
+                                </span>
+                              ) : item.is_overdue ? (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1">
+                                  <Clock className="w-2.5 h-2.5" />
+                                  Overdue
                                 </span>
                               ) : (
                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-soft text-text-muted border border-border">

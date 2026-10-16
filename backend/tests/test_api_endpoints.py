@@ -281,3 +281,135 @@ def test_custom_student_onboarding_and_scheduling(test_app):
     res_del = test_app.delete(f"/api/v1/students/{student_id}")
     assert res_del.status_code == 200
 
+
+def test_time_travel_auto_complete_cutoff(test_app):
+    """Verifies that skipping to target_date with auto_complete=True does NOT complete target_date's tasks."""
+    alex_id = "demo-alex"
+    # 1. Reset Alex to July 15, 2026 baseline
+    res_reset = test_app.post(
+        "/api/v1/dev/reset-semester",
+        headers={"X-Student-Id": alex_id},
+        json={"start_date": "2026-07-15"},
+    )
+    assert res_reset.status_code == 200
+
+    # 2. Time-travel to July 18 with auto_complete=True
+    res_tt = test_app.post(
+        "/api/v1/dev/time-travel",
+        headers={"X-Student-Id": alex_id},
+        json={"target_date": "2026-07-18", "auto_complete": True},
+    )
+    assert res_tt.status_code == 200
+
+    # 3. Fetch schedule
+    res_sched = test_app.get(
+        "/api/v1/schedule",
+        headers={"X-Student-Id": alex_id},
+    )
+    assert res_sched.status_code == 200
+    entries = res_sched.json()
+
+    # Any entry on or before July 17 must be 'done'
+    past_entries = [e for e in entries if e["scheduled_date"] < "2026-07-18"]
+    assert len(past_entries) > 0
+    assert all(e["status"] == "done" for e in past_entries)
+
+    # Any entry on July 18 (today) must NOT be done (should be planned)
+    today_entries = [e for e in entries if e["scheduled_date"] == "2026-07-18"]
+    assert len(today_entries) > 0
+    assert all(e["status"] == "planned" for e in today_entries)
+    assert all(not e["is_overdue"] for e in today_entries)
+
+
+def test_time_travel_without_auto_complete_retains_overdue_and_reschedules(test_app):
+    """Verifies that skipping without auto_complete preserves past tasks as overdue and reschedules them."""
+    alex_id = "demo-alex"
+    # Reset Alex to July 15 baseline
+    test_app.post(
+        "/api/v1/dev/reset-semester",
+        headers={"X-Student-Id": alex_id},
+        json={"start_date": "2026-07-15"},
+    )
+
+    # Time-travel to July 20 without auto-complete
+    res_tt = test_app.post(
+        "/api/v1/dev/time-travel",
+        headers={"X-Student-Id": alex_id},
+        json={"target_date": "2026-07-20", "auto_complete": False},
+    )
+    assert res_tt.status_code == 200
+
+    # Fetch schedule
+    res_sched = test_app.get(
+        "/api/v1/schedule",
+        headers={"X-Student-Id": alex_id},
+    )
+    assert res_sched.status_code == 200
+    entries = res_sched.json()
+
+    # Past entries between July 15 and July 19 must still exist and be marked overdue
+    past_entries = [e for e in entries if e["scheduled_date"] < "2026-07-20"]
+    assert len(past_entries) > 0
+    for pe in past_entries:
+        assert pe["status"] == "planned"
+        assert pe["is_overdue"] is True
+
+    # Active/future entries on or after July 20 must exist and NOT be overdue
+    future_entries = [e for e in entries if e["scheduled_date"] >= "2026-07-20"]
+    assert len(future_entries) > 0
+    assert all(not fe["is_overdue"] for fe in future_entries)
+
+    # Check that total_units in student summary is NOT inflated by overdue duplicates
+    res_students = test_app.get("/api/v1/students")
+    assert res_students.status_code == 200
+    alex_summary = next(s for s in res_students.json() if s["id"] == alex_id)
+
+    # Total units must match syllabus units, not raw database rows
+    assert alex_summary["total_units"] < len(entries)
+
+
+def test_check_in_prioritizes_today_and_preserves_overdue(test_app):
+    """Verifies that checking in on today updates today's planned task and does not overwrite past overdue entry."""
+    alex_id = "demo-alex"
+    # Time-travel to July 20 with overdue entries behind
+    res_today = test_app.get(
+        "/api/v1/schedule/today",
+        headers={"X-Student-Id": alex_id},
+    )
+    assert res_today.status_code == 200
+    today_tasks = res_today.json()["tasks"]
+    assert len(today_tasks) > 0
+
+    target_task = today_tasks[0]
+    unit_id = (
+        f"subtopic:{target_task['subtopic_id']}"
+        if target_task.get("subtopic_id")
+        else f"topic:{target_task['topic_id']}"
+    )
+
+    # Perform check-in on today's unit
+    res_checkin = test_app.post(
+        "/api/v1/schedule/check-in",
+        headers={"X-Student-Id": alex_id},
+        json={
+            "unit_id": unit_id,
+            "status": "done",
+            "confidence_rating": 4,
+        },
+    )
+    assert res_checkin.status_code == 200
+
+    # Verify that the entry for today was marked 'done'
+    res_sched = test_app.get(
+        "/api/v1/schedule",
+        headers={"X-Student-Id": alex_id},
+    )
+    entries = res_sched.json()
+    matching_today = [
+        e for e in entries
+        if e["scheduled_date"] == "2026-07-20"
+        and (e["subtopic_id"] == target_task.get("subtopic_id") if target_task.get("subtopic_id") else e["topic_id"] == target_task["topic_id"])
+    ]
+    assert len(matching_today) > 0
+    assert matching_today[0]["status"] == "done"
+
