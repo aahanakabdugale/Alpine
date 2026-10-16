@@ -11,7 +11,7 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       whileHover={{ scale: 1.06, y: -1 }}
       whileTap={{ scale: 0.92, y: 1 }}
-      title={isDark ? 'Switch to Mint Fresh Light Mode' : 'Switch to Matte Nocturnal Dark Mode'}
+      title={isDark ? 'Switch to Ocean Breeze Light Mode' : 'Switch to Oceanic Navy Dark Mode'}
       aria-label="Toggle visual theme"
       className="relative flex items-center justify-center w-10 h-10 rounded-2xl transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary bg-surface border border-border shadow-clay-pill dark:shadow-clay-dark-pill cursor-pointer"
     >

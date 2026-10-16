@@ -18,7 +18,7 @@ const DEMO_PERSONAS: Record<string, PersonaMeta> = {
     shortName: 'Alex',
     badge: 'Diligent Strong',
     desc: 'Consistent 3-4h daily • Ahead of syllabus schedule',
-    badgeClass: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+    badgeClass: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20',
   },
   'demo-maya': {
     shortName: 'Maya',
@@ -293,7 +293,7 @@ export function ProfileSwitcher() {
             {/* Scrollable Profile List */}
             <div
               ref={listRef}
-              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-2.5 space-y-3 scrollbar-thin scrollbar-thumb-emerald-500/20 scrollbar-track-transparent"
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-2.5 space-y-3 scrollbar-thin scrollbar-thumb-sky-500/20 scrollbar-track-transparent"
               style={{ backgroundColor: 'var(--surface)' }}
             >
               {/* Section 1: Demo Personas (Already in alpine.db) */}
