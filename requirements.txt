@@ -1,0 +1,2 @@
+# Alpine Root Requirements - includes backend and adaptive engine
+-r backend/requirements.txt

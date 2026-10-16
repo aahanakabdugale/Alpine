@@ -8,6 +8,12 @@ pytest>=8.0.0
 # Include Adaptive Engine requirements
 -r ../engine/requirements.txt
 
+# Machine Learning & Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+joblib>=1.3.0
+
 # Set Python path to include backend and engine directories
 #$env:PYTHONPATH="backend;."
 # Start the backend server on port 8000
