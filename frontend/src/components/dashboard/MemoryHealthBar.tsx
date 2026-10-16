@@ -6,7 +6,7 @@ interface MemoryHealthProps {
   reviewCount: number;
 }
 
-const cardTheme = "transition-all duration-300 bg-[#E0F2FE]/85 text-slate-900 border border-sky-400/20 shadow-[0_10px_30px_rgba(56,189,248,0.08)] backdrop-blur-md dark:bg-[#13293D]/88 dark:text-sky-100 dark:border-sky-400/15 dark:shadow-[0_12px_32px_rgba(0,0,0,0.45)] dark:backdrop-blur-md";
+const cardTheme = "transition-all duration-300 glass-card";
 
 export function MemoryHealthBar({
   freshCount,
@@ -24,14 +24,14 @@ export function MemoryHealthBar({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-sky-50 text-sky-600 border border-sky-200/70 dark:bg-sky-500/15 dark:border-sky-400/25 dark:text-sky-400">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-sky-100/80 text-sky-700 border border-sky-200/60 dark:bg-sky-950/60 dark:border-sky-500/20 dark:text-sky-300">
             <ShieldCheck className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 dark:text-white">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-400">
               Memory Health
             </h3>
-            <p className="text-xs text-slate-600 dark:text-sky-200/80">
+            <p className="text-xs text-slate-600 dark:text-sky-200/75">
               Based on your spaced repetition retention.
             </p>
           </div>
@@ -40,7 +40,7 @@ export function MemoryHealthBar({
 
       {/* Segmented Retention Bar */}
       <div className="space-y-2">
-        <div className="w-full h-5 rounded-full overflow-hidden flex p-0.5 bg-slate-100 border border-slate-200/70 shadow-inner dark:bg-[#0B1E2D]/70 dark:border-sky-400/15 dark:shadow-[inset_0_2px_6px_rgba(0,0,0,0.5)]">
+        <div className="w-full h-5 rounded-full overflow-hidden flex p-0.5 bg-sky-50/70 border border-sky-200/60 shadow-inner dark:bg-[#07131D]/80 dark:border-sky-500/20 dark:shadow-[inset_0_2px_6px_rgba(0,0,0,0.5)]">
           {total === 0 ? (
             <div className="w-full h-full rounded-full flex items-center justify-center text-[10px] font-semibold text-slate-400 dark:text-sky-200/50">
               Complete study units to establish memory retention state
@@ -108,7 +108,7 @@ export function MemoryHealthBar({
       </div>
 
       {/* Motivational Quote */}
-      <div className="pt-3 flex items-start gap-2.5 text-xs italic border-t border-slate-200/60 dark:border-sky-400/10 text-slate-600 dark:text-sky-200/70">
+      <div className="pt-3 flex items-start gap-2.5 text-xs italic border-t border-sky-200/60 dark:border-sky-500/20 text-slate-600 dark:text-sky-200/75">
         <Quote className="w-4 h-4 shrink-0 not-italic opacity-70 text-sky-600 dark:text-sky-400" />
         <span>
           &ldquo;Consistency compounds faster than intensity. Small daily steps build permanent mastery.&rdquo;

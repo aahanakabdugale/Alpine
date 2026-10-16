@@ -5,7 +5,7 @@ import type { StudentSummary } from '@/types';
 export function useStudentProfiles() {
   const [profiles, setProfiles] = useState<StudentSummary[]>([]);
   const [activeProfileId, setActiveProfileIdState] = useState<string | null>(() => {
-    return localStorage.getItem('active_student_id');
+    return localStorage.getItem('active_profile_id') || localStorage.getItem('active_student_id');
   });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -14,23 +14,27 @@ export function useStudentProfiles() {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get<StudentSummary[]>('/students');
+      const response = await apiClient.get<StudentSummary[]>('/profiles');
       const data = response.data;
       setProfiles(data);
 
-      const storedId = localStorage.getItem('active_student_id');
+      const storedId = localStorage.getItem('active_profile_id') || localStorage.getItem('active_student_id');
       if (data.length > 0) {
         const exists = data.some((p) => p.id === storedId);
         if (storedId && exists) {
           setActiveProfileIdState(storedId);
+          localStorage.setItem('active_profile_id', storedId);
+          localStorage.setItem('active_student_id', storedId);
         } else {
-          // If stored ID is invalid or not yet set, do not force-select demo-alex
+          // If stored ID is invalid or not yet set
           if (storedId && !exists) {
+            localStorage.removeItem('active_profile_id');
             localStorage.removeItem('active_student_id');
           }
           setActiveProfileIdState(null);
         }
       } else {
+        localStorage.removeItem('active_profile_id');
         localStorage.removeItem('active_student_id');
         setActiveProfileIdState(null);
       }
@@ -49,10 +53,12 @@ export function useStudentProfiles() {
 
   const setActiveProfileId = useCallback((id: string | null) => {
     if (id) {
+      localStorage.setItem('active_profile_id', id);
       localStorage.setItem('active_student_id', id);
       setActiveProfileIdState(id);
       window.dispatchEvent(new CustomEvent('alpine:profile-switch', { detail: id }));
     } else {
+      localStorage.removeItem('active_profile_id');
       localStorage.removeItem('active_student_id');
       setActiveProfileIdState(null);
       window.dispatchEvent(new CustomEvent('alpine:profile-switch', { detail: '__CLEAR_PROFILE__' }));
@@ -67,9 +73,11 @@ export function useStudentProfiles() {
       if (typeof detail === 'string') {
         if (detail === '__CLEAR_PROFILE__') {
           setActiveProfileIdState(null);
+          localStorage.removeItem('active_profile_id');
           localStorage.removeItem('active_student_id');
         } else if (detail.length > 0) {
           setActiveProfileIdState(detail);
+          localStorage.setItem('active_profile_id', detail);
           localStorage.setItem('active_student_id', detail);
         }
       }

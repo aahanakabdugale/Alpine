@@ -19,7 +19,7 @@ interface TodayFocusCardProps {
   onCheckInSuccess: () => void;
 }
 
-const cardTheme = "rounded-3xl p-6 sm:p-7 flex flex-col justify-between h-full space-y-5 transition-all duration-300 bg-[#E0F2FE]/85 text-slate-900 border border-sky-400/20 shadow-[0_10px_30px_rgba(56,189,248,0.08)] backdrop-blur-md dark:bg-[#13293D]/88 dark:text-sky-100 dark:border-sky-400/15 dark:shadow-[0_12px_32px_rgba(0,0,0,0.45)] dark:backdrop-blur-md";
+const cardTheme = "rounded-3xl p-6 sm:p-7 flex flex-col justify-between h-full space-y-5 transition-all duration-300 glass-card";
 
 export function TodayFocusCard({ task, onCheckInSuccess }: TodayFocusCardProps) {
   const [showRatingBar, setShowRatingBar] = useState(false);
@@ -29,23 +29,23 @@ export function TodayFocusCard({ task, onCheckInSuccess }: TodayFocusCardProps) 
 
   if (!task || optimisticDone) {
     return (
-      <div className={`rounded-3xl p-6 sm:p-7 flex flex-col justify-between h-full text-center space-y-4 transition-all duration-300 bg-[#E0F2FE]/85 text-slate-900 border border-sky-400/20 shadow-[0_10px_30px_rgba(56,189,248,0.08)] backdrop-blur-md dark:bg-[#13293D]/88 dark:text-sky-100 dark:border-sky-400/15 dark:shadow-[0_12px_32px_rgba(0,0,0,0.45)] dark:backdrop-blur-md`}>
+      <div className="rounded-3xl p-6 sm:p-7 flex flex-col justify-between h-full text-center space-y-4 transition-all duration-300 glass-card">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-black uppercase tracking-wider text-slate-900 dark:text-white">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-400">
             Today's Focus
           </h2>
-          <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200/70 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-400/25">
+          <span className="text-xs px-2.5 py-0.5 rounded-full bg-sky-100/80 text-sky-800 border border-sky-200/60 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-500/20 font-medium">
             {optimisticDone ? 'Checked In' : 'Standby'}
           </span>
         </div>
         <div className="my-auto py-8">
-          <div className="w-14 h-14 rounded-3xl flex items-center justify-center mx-auto mb-3 bg-sky-50 text-sky-600 border border-sky-200/70 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-400/25">
+          <div className="w-14 h-14 rounded-3xl flex items-center justify-center mx-auto mb-3 bg-sky-100/80 text-sky-700 border border-sky-200/60 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-500/20 font-medium">
             <CheckCircle2 className="w-7 h-7 text-primary animate-bounce" />
           </div>
           <h3 className="text-base font-bold text-slate-900 dark:text-white">
             {optimisticDone ? 'Session Checked In!' : 'All Caught Up!'}
           </h3>
-          <p className="text-xs max-w-xs mx-auto mt-1 text-slate-600 dark:text-sky-200/80">
+          <p className="text-xs max-w-xs mx-auto mt-1 text-slate-600 dark:text-sky-200/75">
             {optimisticDone
               ? 'Great job! Your retention stability has been refreshed and schedule adapted.'
               : 'No pending study units remaining for today. Great job staying ahead of your academic horizon.'}
@@ -98,20 +98,20 @@ export function TodayFocusCard({ task, onCheckInSuccess }: TodayFocusCardProps) 
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full animate-ping bg-sky-500 dark:bg-sky-400" />
-            <span className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-sky-300/80">
+            <span className="text-xs font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-400">
               Today's Focus
             </span>
           </div>
 
           <div className="flex items-center gap-1.5">
             {/* UT Phase pill */}
-            <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200/70 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-400/25">
+            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-sky-100/80 text-sky-800 border border-sky-200/60 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-500/20 font-medium">
               {phase}
             </span>
 
             {/* Review pill */}
             {task.is_review && (
-              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/25 flex items-center gap-1">
+              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-100/80 text-amber-800 border border-amber-200/70 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-500/20 font-medium flex items-center gap-1">
                 <RotateCcw className="w-3 h-3" />
                 Review
               </span>
@@ -134,19 +134,19 @@ export function TodayFocusCard({ task, onCheckInSuccess }: TodayFocusCardProps) 
         </h3>
 
         {task.subtopic_name && task.subtopic_name !== topicName && (
-          <p className="text-xs mt-1 text-slate-600 dark:text-sky-200/80">
+          <p className="text-xs mt-1 text-slate-600 dark:text-sky-200/75">
             Unit: <span className="font-semibold text-slate-900 dark:text-white">{task.subtopic_name}</span>
           </p>
         )}
 
         {/* Metadata chips */}
         <div className="flex flex-wrap items-center gap-2 mt-4">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-sky-50 text-sky-800 border border-sky-200/70 dark:bg-sky-500/10 dark:text-sky-200 dark:border-sky-400/15">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs bg-sky-100/80 text-sky-800 border border-sky-200/60 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-500/20 font-medium">
             <Clock className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
             <span>{hours} {hours === 1 ? 'Hour' : 'Hours'}</span>
           </span>
 
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-sky-50 text-sky-800 border border-sky-200/70 dark:bg-sky-500/10 dark:text-sky-200 dark:border-sky-400/15">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs bg-sky-100/80 text-sky-800 border border-sky-200/60 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-500/20 font-medium">
             <Flame
               className={`w-3.5 h-3.5 ${
                 difficulty >= 4
@@ -162,12 +162,12 @@ export function TodayFocusCard({ task, onCheckInSuccess }: TodayFocusCardProps) 
       </div>
 
       {/* Action / Study Session Trigger */}
-      <div className="pt-2 border-t border-slate-200/60 dark:border-sky-400/15">
+      <div className="pt-2 border-t border-sky-200/60 dark:border-sky-500/20">
         {!showRatingBar ? (
           <button
             type="button"
             onClick={() => setShowRatingBar(true)}
-            className="btn-glow w-full px-6 py-3 rounded-full text-sm font-semibold flex items-center justify-center gap-2 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:scale-[0.98]"
+            className="w-full px-6 py-3 rounded-full text-sm font-bold flex items-center justify-center gap-2 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:scale-[0.98] bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 shadow-[0_4px_14px_rgba(14,165,233,0.35)] hover:shadow-[0_6px_20px_rgba(14,165,233,0.5)] transition-all"
           >
             <Play className="w-4 h-4 fill-current group-hover:scale-110 transition-transform" />
             <span>Start Study Session</span>
@@ -180,7 +180,7 @@ export function TodayFocusCard({ task, onCheckInSuccess }: TodayFocusCardProps) 
               className="space-y-2.5"
             >
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-white">
+                <span className="font-semibold uppercase tracking-wider flex items-center gap-1 text-sky-700 dark:text-sky-400">
                   <Sparkles className="w-3 h-3 text-sky-600 dark:text-sky-400" />
                   Rate Recall to Complete:
                 </span>
@@ -200,7 +200,7 @@ export function TodayFocusCard({ task, onCheckInSuccess }: TodayFocusCardProps) 
                     type="button"
                     disabled={isSubmitting}
                     onClick={() => handleRate(rating)}
-                    className="py-2.5 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200/70 dark:bg-sky-500/10 dark:hover:bg-sky-500/20 dark:text-sky-200 dark:border-sky-400/15"
+                    className="py-2.5 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 bg-sky-100/80 hover:bg-sky-200/80 text-sky-800 border border-sky-200/60 dark:bg-sky-950/60 dark:hover:bg-sky-900/60 dark:text-sky-300 dark:border-sky-500/20"
                   >
                     {isSubmitting ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />

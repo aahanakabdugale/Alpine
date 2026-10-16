@@ -2,8 +2,11 @@ import { Link } from 'react-router-dom';
 import { Mountain, Sparkles } from 'lucide-react';
 import { ProfileSwitcher } from '@/components/layout/ProfileSwitcher';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import { useStudentProfiles } from '@/hooks/useStudentProfiles';
 
 export function Navbar() {
+  const { activeProfile } = useStudentProfiles();
+
   return (
     <header
       className="sticky top-0 z-50 w-full border-b border-border/60 shadow-sm transition-colors duration-300 h-16 flex items-center"
@@ -11,7 +14,10 @@ export function Navbar() {
     >
       <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
         {/* Left: Alpine Brand */}
-        <Link to="/dashboard" className="flex items-center gap-3 group shrink-0">
+        <Link
+          to={activeProfile ? '/dashboard' : '/onboarding'}
+          className="flex items-center gap-3 group shrink-0"
+        >
           <div className="w-10 h-10 rounded-2xl bg-surface p-1 shadow-clay-pill dark:shadow-clay-dark-pill border border-border group-hover:shadow-clay-hover dark:group-hover:shadow-clay-dark-hover transition-all duration-200">
             <div className="w-full h-full bg-primary text-canvas rounded-xl flex items-center justify-center shadow-inner">
               <Mountain className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
@@ -28,7 +34,7 @@ export function Navbar() {
           </div>
         </Link>
 
-        {/* Right: Theme Toggle + Profile Split Button (Default: New Profile + Side Dropdown to load demo data) */}
+        {/* Right: Theme Toggle + Profile Split Button */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <ThemeToggle />
           <ProfileSwitcher />

@@ -36,10 +36,6 @@ def list_profiles():
 
 
 def delete_profile(student_id: str):
-    if student_id.startswith("demo-"):
-        print(f"Error: '{student_id}' is a built-in demo profile (Alex, Maya, Sam) and cannot be deleted.")
-        return False
-
     db = SessionLocal()
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
     if not student:

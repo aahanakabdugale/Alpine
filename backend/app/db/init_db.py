@@ -248,7 +248,8 @@ def seed_demo_profiles(db: Session, subject_map: dict[str, models.Subject]):
 def init_database_if_empty(session: Session | None = None) -> bool:
     """
     Checks if SQLite database is initialized. If empty, creates tables and seeds
-    curriculum and demo student profiles. Returns True if seeded, False if already present.
+    curriculum hierarchy. Does NOT seed demo student profiles, ensuring a clean,
+    empty student state for first-run onboarding.
     """
     Base.metadata.create_all(bind=engine)
     db = session or SessionLocal()
@@ -259,12 +260,10 @@ def init_database_if_empty(session: Session | None = None) -> bool:
         if db.query(models.Subject).count() > 0:
             return False
 
-        print("[INFO] Initializing SQLite database from curriculum seeds...")
+        print("[INFO] Initializing SQLite database schema and curriculum seeds...")
         subject_map = seed_curriculum(db)
         seed_exam_dates(db, subject_map)
-        print("[INFO] Seeding demo student profiles (Alex, Maya, Sam)...")
-        seed_demo_profiles(db, subject_map)
-        print("[SUCCESS] Database successfully initialized with curriculum and demo profiles.")
+        print("[SUCCESS] Database successfully initialized with curriculum hierarchy (0 student profiles).")
         return True
     finally:
         if close_when_done:

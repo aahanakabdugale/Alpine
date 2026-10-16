@@ -84,12 +84,6 @@ def delete_student(student_id: str, db: Session = Depends(get_db)):
     Deletes a student profile and cascades all enrolled subjects, availability,
     confidence ratings, and schedule entries from SQLite.
     """
-    if student_id.startswith("demo-"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Built-in demo profiles (Alex, Maya, Sam) cannot be deleted. Use DevTools to reset their schedule.",
-        )
-
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
     if not student:
         raise HTTPException(
