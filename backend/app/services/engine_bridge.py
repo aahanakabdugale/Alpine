@@ -319,12 +319,10 @@ class EngineBridge:
             max_time_in_seconds=max_time_in_seconds,
         )
 
-        # Delete existing 'planned' rows on or after today (to be replaced by freshly solved entries).
-        # Any 'planned' rows strictly before today represent past uncompleted sessions and are preserved as overdue.
+        # Delete existing 'planned' rows (to be replaced by freshly solved entries)
         db.query(models.ScheduleEntry).filter(
             models.ScheduleEntry.student_id == student_id,
             models.ScheduleEntry.status == "planned",
-            models.ScheduleEntry.scheduled_date >= today,
         ).delete()
 
         subtopics = db.query(models.Subtopic).all()
@@ -358,45 +356,3 @@ class EngineBridge:
             .order_by(models.ScheduleEntry.scheduled_date.asc())
             .all()
         )
-
-    @staticmethod
-    def get_student_syllabus_unit_counts(student_id: str, db: Session) -> tuple[int, int]:
-        """
-        Returns (completed_units, total_units) based on unique curriculum units.
-        Prevents duplicate count inflation from rescheduled or overdue entries.
-        """
-        student = db.query(models.Student).filter(models.Student.id == student_id).first()
-        if not student:
-            return 0, 0
-        enrolled_subject_ids = [e.subject_id for e in student.enrollments]
-        if not enrolled_subject_ids:
-            return 0, 0
-
-        # Query all modules and topics for enrolled subjects
-        modules = (
-            db.query(models.Module)
-            .filter(models.Module.subject_id.in_(enrolled_subject_ids))
-            .all()
-        )
-        total_unit_keys: set[str] = set()
-        for mod in modules:
-            for top in mod.topics:
-                if top.subtopics:
-                    for sub in top.subtopics:
-                        total_unit_keys.add(f"subtopic:{sub.id}")
-                else:
-                    total_unit_keys.add(f"topic:{top.id}")
-
-        done_entries = (
-            db.query(models.ScheduleEntry)
-            .filter(models.ScheduleEntry.student_id == student_id, models.ScheduleEntry.status == "done")
-            .all()
-        )
-        completed_unit_keys = {
-            f"subtopic:{e.subtopic_id}" if e.subtopic_id else f"topic:{e.topic_id}"
-            for e in done_entries
-        }
-
-        completed_count = len(completed_unit_keys & total_unit_keys) if total_unit_keys else len(completed_unit_keys)
-        total_count = len(total_unit_keys)
-        return completed_count, total_count

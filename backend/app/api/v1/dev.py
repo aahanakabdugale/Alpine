@@ -135,11 +135,9 @@ def get_dev_status(
         .all()
     )
 
-    completed_count, total_count = EngineBridge.get_student_syllabus_unit_counts(student.id, db)
-    if total_count == 0:
-        total_count = len(all_entries)
-        completed_count = sum(1 for e in all_entries if e.status == "done")
-    planned_count = sum(1 for e in all_entries if e.status == "planned" and e.scheduled_date >= current_today)
+    total_count = len(all_entries)
+    done_count = sum(1 for e in all_entries if e.status == "done")
+    planned_count = sum(1 for e in all_entries if e.status == "planned")
 
     end_sem_exams = {
         ed.subject_id: ed.exam_date
@@ -164,7 +162,7 @@ def get_dev_status(
         "student_id": student.id,
         "student_name": student.display_name,
         "total_units": total_count,
-        "completed_units": completed_count,
+        "completed_units": done_count,
         "planned_units": planned_count,
         "overrun_units_count": overrun_count,
         "triage_warning": overrun_count > 0,
@@ -179,7 +177,7 @@ def time_travel(
 ):
     """
     Sets simulated clock to target_date.
-    If auto_complete is True, marks all planned units strictly before target_date as completed with
+    If auto_complete is True, marks all planned units up to target_date as completed with
     realistic FSRS confidence, then recalculates remaining horizon from target_date.
     """
     old_date = get_today()
@@ -187,14 +185,14 @@ def time_travel(
     set_simulated_date(target_date)
 
     auto_completed_count = 0
-    if payload.auto_complete and target_date > old_date:
-        # Find all planned entries scheduled strictly before target_date
+    if payload.auto_complete and target_date >= old_date:
+        # Find all planned entries scheduled on or before target_date
         skipped_entries = (
             db.query(models.ScheduleEntry)
             .filter(
                 models.ScheduleEntry.student_id == student.id,
                 models.ScheduleEntry.status == "planned",
-                models.ScheduleEntry.scheduled_date < target_date,
+                models.ScheduleEntry.scheduled_date <= target_date,
             )
             .order_by(models.ScheduleEntry.scheduled_date.asc())
             .all()

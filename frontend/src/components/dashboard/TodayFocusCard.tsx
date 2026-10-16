@@ -81,7 +81,6 @@ export function TodayFocusCard({ task, onCheckInSuccess }: TodayFocusCardProps) 
         description: `Confidence: ${rating}/5 • Stability: ${response.data.stability_days.toFixed(1)} days`,
       });
       onCheckInSuccess();
-      window.dispatchEvent(new CustomEvent('alpine:schedule-updated'));
     } catch (err: unknown) {
       console.error('Check-in error:', err);
       setOptimisticDone(false);

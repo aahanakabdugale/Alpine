@@ -46,10 +46,8 @@ export function DashboardView() {
       fetchDashboardData();
     };
     window.addEventListener('alpine:dev-time-travel', handleDevUpdate);
-    window.addEventListener('alpine:schedule-updated', handleDevUpdate);
     return () => {
       window.removeEventListener('alpine:dev-time-travel', handleDevUpdate);
-      window.removeEventListener('alpine:schedule-updated', handleDevUpdate);
     };
   }, [fetchDashboardData]);
 
@@ -57,7 +55,7 @@ export function DashboardView() {
   const todayTasks = todayData?.tasks || [];
   const completedTodayTasks = todayTasks.filter((t) => t.status === 'done').length;
   const totalTodayTasks = todayTasks.length;
-  const nextPendingUnit = todayTasks.find((t) => t.status === 'planned') || null;
+  const nextPendingUnit = todayTasks.find((t) => t.status !== 'done') || null;
 
   // Real Mastery and Reviews metrics
   const topicsMastered = useMemo(() => {
@@ -67,12 +65,12 @@ export function DashboardView() {
     return doneTopicIds.size;
   }, [allEntries]);
 
-  // Calendar review tasks scheduled specifically for today
-  const todayReviewTasksCount = useMemo(() => {
-    return todayTasks.filter((e) => e.is_review && e.status !== 'done').length;
-  }, [todayTasks]);
+  const reviewsDue = useMemo(() => {
+    const todayStr = todayData?.date ? String(todayData.date) : new Date().toISOString().slice(0, 10);
+    return allEntries.filter((e) => e.is_review && e.status !== 'done' && e.scheduled_date <= todayStr).length;
+  }, [allEntries, todayData?.date]);
 
-  // Real Consecutive Day Streak relative to active simulated date
+  // Real Consecutive Day Streak
   const dayStreak = useMemo(() => {
     if (allEntries.length === 0) return 0;
 
@@ -82,11 +80,12 @@ export function DashboardView() {
 
     if (doneDates.length === 0) return 0;
 
-    const refDateStr = todayData?.date ? String(todayData.date) : new Date().toISOString().slice(0, 10);
-    const hasDoneToday = doneDates.includes(refDateStr);
+    const todayIso = new Date().toISOString().slice(0, 10);
+    const hasDoneToday = doneDates.includes(todayIso);
 
+    // Calculate backwards consecutive days
     let streak = 0;
-    const checkDate = new Date(`${refDateStr}T00:00:00`);
+    const checkDate = new Date();
     if (!hasDoneToday) {
       checkDate.setDate(checkDate.getDate() - 1);
     }
@@ -102,23 +101,43 @@ export function DashboardView() {
     }
 
     return streak;
-  }, [allEntries, todayData?.date]);
+  }, [allEntries]);
 
-  // Real Monday–Sunday Study Hours anchored to active simulated date
+  // Real Monday–Sunday Study Hours
   const weeklyDays = useMemo<DayStudyStat[]>(() => {
     const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const refDateStr = todayData?.date ? String(todayData.date) : new Date().toISOString().slice(0, 10);
-    const refDate = new Date(`${refDateStr}T00:00:00`);
+    const now = new Date();
+    const todayIso = now.toISOString().slice(0, 10);
 
-    // Find Monday of the current active week
-    const currentDayOfWeek = (refDate.getDay() + 6) % 7; // 0 for Mon, 6 for Sun
-    const monday = new Date(refDate);
-    monday.setDate(refDate.getDate() - currentDayOfWeek);
+    // Find Monday of the current week
+    const currentDayOfWeek = (now.getDay() + 6) % 7; // 0 for Mon, 6 for Sun
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - currentDayOfWeek);
+
+    // Check if student has entries in the current calendar week
+    const mondayIso = monday.toISOString().slice(0, 10);
+    const sundayDate = new Date(monday);
+    sundayDate.setDate(monday.getDate() + 6);
+    const sundayIso = sundayDate.toISOString().slice(0, 10);
+
+    const hasEntriesThisWeek = allEntries.some(
+      (e) => e.scheduled_date >= mondayIso && e.scheduled_date <= sundayIso
+    );
+
+    // If current week has no entries, find the active schedule date window (e.g. for pre-seeded test learners like Alex)
+    let anchorMonday = monday;
+    if (!hasEntriesThisWeek && allEntries.length > 0) {
+      const firstDateStr = allEntries[0].scheduled_date;
+      const parsedFirst = new Date(`${firstDateStr}T00:00:00`);
+      const offset = (parsedFirst.getDay() + 6) % 7;
+      anchorMonday = new Date(parsedFirst);
+      anchorMonday.setDate(parsedFirst.getDate() - offset);
+    }
 
     const result: DayStudyStat[] = [];
     for (let i = 0; i < 7; i++) {
-      const d = new Date(monday);
-      d.setDate(monday.getDate() + i);
+      const d = new Date(anchorMonday);
+      d.setDate(anchorMonday.getDate() + i);
       const iso = d.toISOString().slice(0, 10);
 
       const dayEntries = allEntries.filter((e) => e.scheduled_date === iso);
@@ -129,13 +148,13 @@ export function DashboardView() {
         dayName: dayNames[i],
         fullDate: iso,
         hours: Math.round(dayHours * 10) / 10,
-        isToday: iso === refDateStr,
+        isToday: iso === todayIso,
         completedCount,
       });
     }
 
     return result;
-  }, [allEntries, todayData?.date]);
+  }, [allEntries]);
 
   // Real FSRS Memory Health Counts provided directly by backend mastery retention engine
   const { freshCount, fadingCount, reviewCount } = useMemo(() => {
@@ -239,7 +258,7 @@ export function DashboardView() {
         <WeeklyBarChart
           days={weeklyDays}
           topicsMastered={topicsMastered}
-          reviewsDue={todayReviewTasksCount}
+          reviewsDue={reviewsDue}
           dayStreak={dayStreak}
         />
       </div>

@@ -188,8 +188,7 @@ def build_schedule(
     assigned = {}
     for i, u in enumerate(units):
         bools = [model.NewBoolVar(f"assigned_{u.unit_id}_{d}") for d in range(horizon_days)]
-        map_domain_fn = getattr(model, "add_map_domain", getattr(model, "AddMapDomain", None))
-        map_domain_fn(day_vars[i], bools, 0)
+        model.AddMapDomain(day_vars[i], bools, 0)
         for d in range(horizon_days):
             assigned[(i, d)] = bools[d]
 

@@ -108,3 +108,11 @@ dist/
 *.db-wal
 *.db-shm
 *.db-journal
+
+# ==========================================
+# Impeccable & Local Agent Tooling
+# ==========================================
+.impeccable/
+.agent/
+.gemini/
+.opencode/

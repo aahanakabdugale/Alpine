@@ -49,7 +49,6 @@ def _hydrate_schedule_entries(
     }
 
     results: list[ScheduleEntryOut] = []
-    today = get_today()
     for e in entries:
         sub = subtopics.get(e.subtopic_id) if e.subtopic_id else None
         top = topics.get(e.topic_id) if e.topic_id else None
@@ -63,7 +62,6 @@ def _hydrate_schedule_entries(
         subj_id = subj.id if subj else None
         end_sem_date = end_sem_exams.get(subj_id) if subj_id else None
         is_overrun = bool(end_sem_date and e.scheduled_date > end_sem_date)
-        is_overdue = bool(e.status == "planned" and e.scheduled_date < today)
 
         results.append(
             ScheduleEntryOut(
@@ -85,7 +83,6 @@ def _hydrate_schedule_entries(
                 est_hours=est_hours,
                 est_difficulty=est_diff,
                 is_overrun=is_overrun,
-                is_overdue=is_overdue,
             )
         )
     return results
@@ -317,28 +314,8 @@ def schedule_check_in(
     else:
         entry_query = entry_query.filter(models.ScheduleEntry.subtopic_id.is_(None))
 
-    # Prioritize today's planned entry, then upcoming planned entry, then overdue planned entry
-    matching_entry = (
-        entry_query.filter(
-            models.ScheduleEntry.status == "planned",
-            models.ScheduleEntry.scheduled_date == today,
-        ).first()
-    )
-    if not matching_entry:
-        matching_entry = (
-            entry_query.filter(
-                models.ScheduleEntry.status == "planned",
-                models.ScheduleEntry.scheduled_date >= today,
-            )
-            .order_by(models.ScheduleEntry.scheduled_date.asc())
-            .first()
-        )
-    if not matching_entry:
-        matching_entry = (
-            entry_query.filter(models.ScheduleEntry.status == "planned")
-            .order_by(models.ScheduleEntry.scheduled_date.desc())
-            .first()
-        )
+    # Mark the earliest matching planned or today entry as 'done'
+    matching_entry = entry_query.order_by(models.ScheduleEntry.scheduled_date.asc()).first()
     if matching_entry:
         matching_entry.status = "done"
 
@@ -383,25 +360,11 @@ def get_student_progress(
         s.id: s.name for s in db.query(models.Subject).filter(models.Subject.id.in_(enrolled_subject_ids)).all()
     }
 
-    # Calculate distinct curriculum units per subject
-    modules_by_subject: dict[str, list[models.Module]] = {s_id: [] for s_id in enrolled_subject_ids}
-    for m in db.query(models.Module).filter(models.Module.subject_id.in_(enrolled_subject_ids)).all():
-        modules_by_subject[m.subject_id].append(m)
+    # Tally counts by subject
+    subject_completed: dict[str, int] = {s_id: 0 for s_id in enrolled_subject_ids}
+    subject_total: dict[str, int] = {s_id: 0 for s_id in enrolled_subject_ids}
 
-    subject_total_units: dict[str, set[str]] = {s_id: set() for s_id in enrolled_subject_ids}
-    for s_id, mods in modules_by_subject.items():
-        for mod in mods:
-            for top in mod.topics:
-                if top.subtopics:
-                    for sub in top.subtopics:
-                        subject_total_units[s_id].add(f"subtopic:{sub.id}")
-                else:
-                    subject_total_units[s_id].add(f"topic:{top.id}")
-
-    subject_completed_units: dict[str, set[str]] = {s_id: set() for s_id in enrolled_subject_ids}
     for e in all_entries:
-        if e.status != "done":
-            continue
         top = topics.get(e.topic_id)
         if not top:
             continue
@@ -409,18 +372,19 @@ def get_student_progress(
         if not mod:
             continue
         s_id = mod.subject_id
-        if s_id in subject_completed_units:
-            unit_key = f"subtopic:{e.subtopic_id}" if e.subtopic_id else f"topic:{e.topic_id}"
-            subject_completed_units[s_id].add(unit_key)
+        if s_id in subject_total:
+            subject_total[s_id] += 1
+            if e.status == "done":
+                subject_completed[s_id] += 1
+
+    overall_total = sum(subject_total.values())
+    overall_completed = sum(subject_completed.values())
+    overall_pct = round((overall_completed / overall_total * 100.0) if overall_total > 0 else 0.0, 1)
 
     subject_stats = []
-    overall_total = 0
-    overall_completed = 0
     for s_id in enrolled_subject_ids:
-        tot = len(subject_total_units.get(s_id, set()))
-        cmp = len(subject_completed_units.get(s_id, set()))
-        overall_total += tot
-        overall_completed += cmp
+        tot = subject_total.get(s_id, 0)
+        cmp = subject_completed.get(s_id, 0)
         pct = round((cmp / tot * 100.0) if tot > 0 else 0.0, 1)
         subject_stats.append(
             ProgressSubjectStats(
@@ -431,8 +395,6 @@ def get_student_progress(
                 completion_percentage=pct,
             )
         )
-
-    overall_pct = round((overall_completed / overall_total * 100.0) if overall_total > 0 else 0.0, 1)
 
     return ProgressResponse(
         overall_completed_units=overall_completed,

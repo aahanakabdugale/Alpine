@@ -42,24 +42,18 @@ export function MasteryTree() {
   const [expandedTopics, setExpandedTopics] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const [simulatedDate, setSimulatedDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
-
   const fetchCurriculum = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [treeRes, schedRes, todayRes] = await Promise.all([
+      const [treeRes, schedRes] = await Promise.all([
         apiClient.get<SubjectTree[]>('/curriculum/tree'),
         apiClient.get<ScheduleEntryOut[]>('/schedule').catch(() => ({ data: [] as ScheduleEntryOut[] })),
-        apiClient.get<{ date: string }>('/schedule/today').catch(() => null),
       ]);
 
       const subjects = treeRes.data;
       setTreeData(subjects);
       setScheduleEntries(schedRes.data || []);
-      if (todayRes && todayRes.data?.date) {
-        setSimulatedDate(String(todayRes.data.date));
-      }
 
       if (subjects.length > 0) {
         setExpandedSubjects({ [subjects[0].id]: true });
@@ -80,16 +74,12 @@ export function MasteryTree() {
     Promise.all([
       apiClient.get<SubjectTree[]>('/curriculum/tree'),
       apiClient.get<ScheduleEntryOut[]>('/schedule').catch(() => ({ data: [] as ScheduleEntryOut[] })),
-      apiClient.get<{ date: string }>('/schedule/today').catch(() => null),
     ])
-      .then(([treeRes, schedRes, todayRes]) => {
+      .then(([treeRes, schedRes]) => {
         if (!cancelled) {
           const subjects = treeRes.data;
           setTreeData(subjects);
           setScheduleEntries(schedRes.data || []);
-          if (todayRes && todayRes.data?.date) {
-            setSimulatedDate(String(todayRes.data.date));
-          }
           if (subjects.length > 0) {
             setExpandedSubjects({ [subjects[0].id]: true });
             if (subjects[0].modules.length > 0) {
@@ -112,23 +102,19 @@ export function MasteryTree() {
   }, [activeProfile?.id]);
 
   useEffect(() => {
-    const handleUpdate = () => {
+    const handleProfileSwitch = () => {
       fetchCurriculum();
     };
-    window.addEventListener('alpine:profile-switch', handleUpdate);
-    window.addEventListener('alpine:dev-time-travel', handleUpdate);
-    window.addEventListener('alpine:schedule-updated', handleUpdate);
+    window.addEventListener('alpine:profile-switch', handleProfileSwitch);
     return () => {
-      window.removeEventListener('alpine:profile-switch', handleUpdate);
-      window.removeEventListener('alpine:dev-time-travel', handleUpdate);
-      window.removeEventListener('alpine:schedule-updated', handleUpdate);
+      window.removeEventListener('alpine:profile-switch', handleProfileSwitch);
     };
   }, [fetchCurriculum]);
 
   // Map topic / subtopic IDs to schedule entry status for retention health
   const statusLookup = useMemo(() => {
     const map = new Map<string, UnitRetentionInfo>();
-    const now = new Date(`${simulatedDate}T00:00:00`);
+    const now = new Date();
 
     for (const e of scheduleEntries) {
       const key = e.subtopic_id ? `subtopic:${e.subtopic_id}` : `topic:${e.topic_id}`;
@@ -154,7 +140,7 @@ export function MasteryTree() {
     }
 
     return map;
-  }, [scheduleEntries, simulatedDate]);
+  }, [scheduleEntries]);
 
   const toggleSubject = (id: string) => {
     setExpandedSubjects((prev) => ({ ...prev, [id]: !prev[id] }));

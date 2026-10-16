@@ -64,15 +64,11 @@ def rebuild_schedule(
     review_units: list[SchedulableUnit] = []
     if spawn_reviews:
         completed_units = [u for u in request.units if u.unit_id in done_ids and not u.is_review]
-        existing_planned_review_parents = set()
-        for e in existing_entries:
-            if getattr(e, "is_review", False) and e.status == "planned":
-                if e.unit_id.startswith("review:"):
-                    parts = e.unit_id.split(":")
-                    if len(parts) >= 3:
-                        existing_planned_review_parents.add(f"{parts[1]}:{parts[2]}")
-                else:
-                    existing_planned_review_parents.add(e.unit_id)
+        existing_planned_review_parents = {
+            e.unit_id.split(":")[1]
+            for e in existing_entries
+            if getattr(e, "is_review", False) and e.status == "planned" and ":" in e.unit_id
+        }
         review_units = generate_pending_reviews(
             completed_units=completed_units,
             confidence_ratings=request.confidence,

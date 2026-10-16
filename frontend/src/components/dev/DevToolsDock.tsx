@@ -50,7 +50,6 @@ export function DevToolsDock() {
 
   const notifyStateChange = () => {
     window.dispatchEvent(new CustomEvent('alpine:dev-time-travel'));
-    window.dispatchEvent(new CustomEvent('alpine:schedule-updated'));
     fetchStatus();
   };
 

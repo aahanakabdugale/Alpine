@@ -137,7 +137,7 @@ export function WeeklyBarChart({
           </span>
         </div>
 
-        {/* Today's Review Tasks */}
+        {/* Reviews Due */}
         <div className={`rounded-2xl p-3.5 sm:p-4 flex items-center justify-between ${cardTheme}`}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-amber-50 text-amber-600 border border-amber-200/60 dark:bg-amber-500/15 dark:border-amber-500/25 dark:text-amber-400">
@@ -145,15 +145,15 @@ export function WeeklyBarChart({
             </div>
             <div>
               <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-emerald-200/70">
-                Today's Review Tasks
+                Reviews Due
               </div>
               <div className="text-lg font-black mt-0.5 text-slate-800 dark:text-white">
-                {reviewsDue} Scheduled
+                {reviewsDue} Pending
               </div>
             </div>
           </div>
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/25">
-            Today's Calendar
+            Spaced Queue
           </span>
         </div>
 

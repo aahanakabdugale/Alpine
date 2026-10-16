@@ -120,7 +120,6 @@ export interface ScheduleEntryOut {
   est_hours: number | null;
   est_difficulty: number | null;
   is_overrun?: boolean;
-  is_overdue?: boolean;
 }
 
 export interface ExamCountdownItem {
