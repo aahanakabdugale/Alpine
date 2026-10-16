@@ -17,9 +17,6 @@ import { toast } from 'sonner';
 import { apiClient } from '@/lib/api';
 import type {
   SubjectsGrouped,
-  StudentCreateResponse,
-  StudentOnboardRequest,
-  StudentOnboardResponse,
   DailyAvailabilityItem,
   DevStatusResponse,
 } from '@/types';
@@ -128,43 +125,45 @@ export function Onboarding() {
     setIsSubmitting(true);
 
     try {
-      // 1. Create student in SQLite
-      const createRes = await apiClient.post<StudentCreateResponse>('/students', {
-        display_name: displayName.trim(),
-      });
-      const newStudentId = createRes.data.id;
-
-      // 2. Format 7-day availability matrix
+      // 1. Format 7-day availability matrix
       const availabilityList: DailyAvailabilityItem[] = DAYS_OF_WEEK.map((d) => ({
         day_of_week: d.day,
         hours_available: availability[d.day] || 0.0,
       }));
 
-      // 3. Submit onboarding payload to generate CP-SAT schedule
-      const onboardPayload: StudentOnboardRequest = {
-        student_id: newStudentId,
-        elective_id: selectedElectiveId,
-        honors_id: selectedHonorsId,
+      // 2. Submit unified payload to POST /profiles
+      const profilePayload = {
+        display_name: displayName.trim(),
+        elective_id: selectedElectiveId || null,
+        honors_id: selectedHonorsId || null,
         availability: availabilityList,
         start_date: startDate,
       };
 
-      const onboardRes = await apiClient.post<StudentOnboardResponse>(
-        '/student/onboard',
-        onboardPayload
-      );
+      const res = await apiClient.post<{
+        id: string;
+        display_name: string;
+        message: string;
+        total_scheduled_units: number;
+      }>('/profiles', profilePayload);
 
-      // 4. Ensure active student ID is persisted and switch event dispatched
-      localStorage.setItem('active_student_id', newStudentId);
-      window.dispatchEvent(new CustomEvent('alpine:profile-switch', { detail: newStudentId }));
-      window.dispatchEvent(new CustomEvent('alpine:dev-time-travel'));
-      window.dispatchEvent(new CustomEvent('alpine:schedule-updated'));
+    const profile = res.data;
+    const newProfileId = profile.id;
+
+    // Persist active IDs for both hooks
+    localStorage.setItem('active_profile_id', newProfileId);
+    localStorage.setItem('active_student_id', newProfileId);
+
+    // Dispatch switch and sync events
+    window.dispatchEvent(new CustomEvent('alpine:profile-switch', { detail: newProfileId }));
+    window.dispatchEvent(new CustomEvent('alpine:dev-time-travel'));
+    window.dispatchEvent(new CustomEvent('alpine:schedule-updated'));
 
       toast.success(`Welcome to Alpine, ${displayName.trim()}!`, {
-        description: `Generated study plan with ${onboardRes.data.total_scheduled_units} units. Set as default profile.`,
+        description: `Generated study plan with ${profile.total_scheduled_units} units. Set as active profile.`,
       });
 
-      // 5. Navigate to Dashboard
+      // 4. Navigate to main Dashboard
       navigate('/dashboard');
     } catch (err: unknown) {
       console.error('Onboarding failed:', err);

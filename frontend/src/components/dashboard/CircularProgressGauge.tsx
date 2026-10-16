@@ -57,10 +57,10 @@ export function CircularProgressGauge({
 
       {/* Center Percentage Display */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-        <span className="font-mono text-3xl font-black tracking-tight text-slate-900 dark:text-sky-100">
+        <span className="font-mono text-3xl font-black tracking-tight text-slate-900 dark:text-white">
           {Math.round(clamped)}%
         </span>
-        <span className="text-[10px] font-bold uppercase tracking-wider mt-0.5 text-slate-500 dark:text-sky-300/80">
+        <span className="text-[10px] font-bold uppercase tracking-wider mt-0.5 text-slate-500 dark:text-sky-200/70">
           Complete
         </span>
       </div>

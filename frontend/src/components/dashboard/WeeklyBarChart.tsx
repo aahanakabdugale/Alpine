@@ -15,7 +15,7 @@ interface WeeklyBarChartProps {
   dayStreak: number;
 }
 
-const cardTheme = "transition-all duration-300 bg-[#E0F2FE]/85 text-slate-900 border border-sky-400/20 shadow-[0_10px_30px_rgba(56,189,248,0.08)] backdrop-blur-md dark:bg-[#13293D]/88 dark:text-sky-100 dark:border-sky-400/15 dark:shadow-[0_12px_32px_rgba(0,0,0,0.45)] dark:backdrop-blur-md";
+const cardTheme = "transition-all duration-300 glass-card";
 
 export function WeeklyBarChart({
   days,
@@ -32,10 +32,10 @@ export function WeeklyBarChart({
       <div className={`lg:col-span-8 rounded-3xl p-6 flex flex-col justify-between ${cardTheme}`}>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 dark:text-white">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-400">
               Weekly Study Capacity & Distribution
             </h3>
-            <p className="text-xs mt-0.5 text-slate-600 dark:text-sky-200/80">
+            <p className="text-xs mt-0.5 text-slate-600 dark:text-sky-200/75">
               Planned study hours across this week.
             </p>
           </div>
@@ -43,7 +43,7 @@ export function WeeklyBarChart({
             <span className="font-mono text-base font-black text-sky-600 dark:text-sky-400">
               {totalWeekHours.toFixed(1)} hrs
             </span>
-            <span className="block text-[10px] font-bold uppercase text-slate-400 dark:text-sky-200/60">
+            <span className="block text-[10px] font-bold uppercase text-slate-500 dark:text-sky-200/70">
               This Week
             </span>
           </div>
@@ -64,7 +64,7 @@ export function WeeklyBarChart({
                 </span>
 
                 {/* Track + Bar */}
-                <div className="w-full max-w-[32px] sm:max-w-[36px] h-28 rounded-full overflow-hidden p-1 flex flex-col justify-end relative bg-slate-100 border border-slate-200/70 shadow-inner dark:bg-[#0B1E2D]/70 dark:border-sky-400/15 dark:shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]">
+                <div className="w-full max-w-[32px] sm:max-w-[36px] h-28 rounded-full overflow-hidden p-1 flex flex-col justify-end relative bg-sky-50/70 border border-sky-200/60 shadow-inner dark:bg-[#07131D]/80 dark:border-sky-500/20 dark:shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]">
                   {/* Baseline for zero-hour days */}
                   {!hasHours && (
                     <div className="w-full h-1 rounded-full bg-slate-200 dark:bg-sky-500/15" />
@@ -120,7 +120,7 @@ export function WeeklyBarChart({
         {/* Topics Mastered */}
         <div className={`rounded-2xl p-3.5 sm:p-4 flex items-center justify-between ${cardTheme}`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-sky-50 text-sky-600 border border-sky-200/70 dark:bg-sky-500/15 dark:border-sky-400/25 dark:text-sky-300">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-sky-100/80 text-sky-700 border border-sky-200/60 dark:bg-sky-950/60 dark:border-sky-500/20 dark:text-sky-300">
               <Award className="w-5 h-5" />
             </div>
             <div>
@@ -132,7 +132,7 @@ export function WeeklyBarChart({
               </div>
             </div>
           </div>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200/70 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-400/25">
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-100/80 text-sky-800 border border-sky-200/60 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-500/20 font-medium">
             Retained
           </span>
         </div>
@@ -140,7 +140,7 @@ export function WeeklyBarChart({
         {/* Reviews Due */}
         <div className={`rounded-2xl p-3.5 sm:p-4 flex items-center justify-between ${cardTheme}`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-amber-50 text-amber-600 border border-amber-200/60 dark:bg-amber-500/15 dark:border-amber-500/25 dark:text-amber-400">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-amber-100/80 text-amber-700 border border-amber-200/70 dark:bg-amber-950/60 dark:border-amber-500/20 dark:text-amber-400">
               <RotateCcw className="w-5 h-5" />
             </div>
             <div>
@@ -152,7 +152,7 @@ export function WeeklyBarChart({
               </div>
             </div>
           </div>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/25">
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100/80 text-amber-800 border border-amber-200/70 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-500/20 font-medium">
             Spaced Queue
           </span>
         </div>
@@ -160,7 +160,7 @@ export function WeeklyBarChart({
         {/* Day Streak */}
         <div className={`rounded-2xl p-3.5 sm:p-4 flex items-center justify-between ${cardTheme}`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-rose-50 text-rose-600 border border-rose-200/60 dark:bg-rose-500/15 dark:border-rose-500/25 dark:text-rose-400">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-rose-100/80 text-rose-700 border border-rose-200/70 dark:bg-rose-950/60 dark:border-rose-500/20 dark:text-rose-400">
               <Flame className="w-5 h-5" />
             </div>
             <div>
@@ -172,7 +172,7 @@ export function WeeklyBarChart({
               </div>
             </div>
           </div>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200/60 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/25">
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-100/80 text-rose-800 border border-rose-200/70 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-500/20 font-medium">
             {dayStreak > 0 ? 'Active 🔥' : 'Start Today'}
           </span>
         </div>

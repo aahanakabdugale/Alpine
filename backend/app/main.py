@@ -15,17 +15,20 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+from app.db.session import Base, engine
 from app.db.init_db import init_database_if_empty
 from app.api.v1.router import api_router
+from app.api.v1.profiles import router as profiles_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     Application lifespan context manager:
-    Ensures SQLite tables and seed data (curriculum hierarchy and demo student
-    profiles) are initialized automatically upon server launch.
+    Ensures SQLite tables and curriculum schema are created and initialized
+    automatically upon server launch without demo personas.
     """
+    Base.metadata.create_all(bind=engine)
     init_database_if_empty()
     yield
 
@@ -73,6 +76,8 @@ async def global_exception_handler(request, exc: Exception):
 
 # Mount API v1 router
 app.include_router(api_router, prefix="/api/v1")
+# Also mount profiles directly under /profiles for root fallback compatibility
+app.include_router(profiles_router, prefix="/profiles")
 
 
 @app.get("/", tags=["Health"])

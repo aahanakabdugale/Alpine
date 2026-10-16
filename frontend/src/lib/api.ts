@@ -8,7 +8,7 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  const activeStudentId = localStorage.getItem('active_student_id') || '';
+  const activeStudentId = localStorage.getItem('active_profile_id') || localStorage.getItem('active_student_id') || '';
   if (activeStudentId) {
     config.headers['X-Student-Id'] = activeStudentId;
   }
