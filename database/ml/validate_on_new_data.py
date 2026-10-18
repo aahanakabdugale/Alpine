@@ -187,7 +187,7 @@ def main():
     plot_save_path = PROJECT_ROOT / "database" / "ml" / "validation_plots.png"
     plt.savefig(plot_save_path, dpi=300)
     print(f"Diagnostic graphs saved to: {plot_save_path}")
-    plt.show()
+    plt.close()
 
 if __name__ == "__main__":
     main()
