@@ -25,6 +25,24 @@ def get_db() -> Generator[Session, None, None]:
         db.close()
 
 
+def get_active_student_optional(
+    x_student_id: Optional[str] = Header(default=None, alias="X-Student-Id"),
+    db: Session = Depends(get_db),
+) -> Optional[models.Student]:
+    """
+    Like get_active_student but returns None instead of raising HTTP 404
+    when no student profile exists. Use for endpoints that must work even
+    before the first profile is created (e.g. /dev/status on the onboarding page).
+    """
+    if x_student_id:
+        return db.query(models.Student).filter(models.Student.id == x_student_id).first()
+    return (
+        db.query(models.Student)
+        .order_by(models.Student.created_at.asc())
+        .first()
+    )
+
+
 def get_active_student(
     x_student_id: Optional[str] = Header(default=None, alias="X-Student-Id"),
     db: Session = Depends(get_db),

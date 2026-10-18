@@ -120,6 +120,7 @@ export interface ScheduleEntryOut {
   est_hours: number | null;
   est_difficulty: number | null;
   is_overrun?: boolean;
+  is_overdue?: boolean;   // true when status=planned and scheduled_date < today
 }
 
 export interface ExamCountdownItem {
@@ -152,8 +153,8 @@ export interface DevStatusResponse {
   simulated_date: string;
   real_date: string;
   is_simulated: boolean;
-  student_id: string;
-  student_name: string;
+  student_id: string | null;    // null before any profile is created
+  student_name: string | null;  // null before any profile is created
   total_units: number;
   completed_units: number;
   planned_units: number;

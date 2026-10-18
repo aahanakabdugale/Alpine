@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
-from app.core.clock import get_today
+from app.core.clock import get_today, set_simulated_date
 from app.db import models
 from app.schemas.student import StudentSummary, DailyAvailabilityItem
 from app.services.engine_bridge import EngineBridge
@@ -129,6 +129,7 @@ def create_profile(payload: ProfileCreateRequest, db: Session = Depends(get_db))
 
         # 3. Generate baseline schedule
         schedule_start = payload.start_date or get_today()
+        set_simulated_date(schedule_start)
         created_entries = EngineBridge.generate_baseline_schedule(
             student_id=student_id,
             db=db,

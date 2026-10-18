@@ -14,11 +14,12 @@ from __future__ import annotations
 
 import random
 from datetime import date, timedelta
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db, get_active_student
+from app.api.deps import get_db, get_active_student, get_active_student_optional
 from app.core.clock import get_today, set_simulated_date, reset_clock, is_simulated
 from app.db import models
 from app.services.engine_bridge import EngineBridge
@@ -122,12 +123,27 @@ def _assign_realistic_completion(
 
 @router.get("/status")
 def get_dev_status(
-    student: models.Student = Depends(get_active_student),
+    student: Optional[models.Student] = Depends(get_active_student_optional),
     db: Session = Depends(get_db),
 ):
     """Returns current simulated clock status, student metrics, and overrun triage state."""
     current_today = get_today()
     real_today = date.today()
+
+    # Graceful pre-onboarding response: no profile exists yet
+    if student is None:
+        return {
+            "simulated_date": str(current_today),
+            "real_date": str(real_today),
+            "is_simulated": is_simulated(),
+            "student_id": None,
+            "student_name": None,
+            "total_units": 0,
+            "completed_units": 0,
+            "planned_units": 0,
+            "overrun_units_count": 0,
+            "triage_warning": False,
+        }
 
     all_entries = (
         db.query(models.ScheduleEntry)
@@ -174,17 +190,27 @@ def get_dev_status(
 @router.post("/time-travel")
 def time_travel(
     payload: TimeTravelRequest,
-    student: models.Student = Depends(get_active_student),
+    student: Optional[models.Student] = Depends(get_active_student_optional),
     db: Session = Depends(get_db),
 ):
     """
     Sets simulated clock to target_date.
-    If auto_complete is True, marks all planned units strictly before target_date as completed with
-    realistic FSRS confidence, then recalculates remaining horizon from target_date.
+    If a student profile exists and auto_complete is True, marks all planned units
+    strictly before target_date as completed with realistic FSRS confidence,
+    then recalculates remaining horizon from target_date.
+    If no student profile exists yet (pre-onboarding), simply updates the clock.
     """
     old_date = get_today()
     target_date = payload.target_date
     set_simulated_date(target_date)
+
+    if student is None:
+        return {
+            "message": f"Simulated date set to {target_date}",
+            "simulated_date": str(target_date),
+            "auto_completed_units": 0,
+            "recalculated_units": 0,
+        }
 
     auto_completed_count = 0
     if payload.auto_complete and target_date > old_date:

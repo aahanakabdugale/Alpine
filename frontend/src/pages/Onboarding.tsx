@@ -89,6 +89,17 @@ export function Onboarding() {
       }
     }
     loadSubjects();
+
+    const handleDevDateChange = (e: Event) => {
+      const customEvent = e as CustomEvent<{ date: string }>;
+      if (customEvent.detail?.date) {
+        setStartDate(customEvent.detail.date);
+      }
+    };
+    window.addEventListener('alpine:dev-date-changed', handleDevDateChange);
+    return () => {
+      window.removeEventListener('alpine:dev-date-changed', handleDevDateChange);
+    };
   }, []);
 
   const totalWeeklyHours = Object.values(availability).reduce((acc, h) => acc + h, 0);
@@ -163,8 +174,8 @@ export function Onboarding() {
         description: `Generated study plan with ${profile.total_scheduled_units} units. Set as active profile.`,
       });
 
-      // 4. Navigate to main Dashboard
-      navigate('/dashboard');
+      // 4. Navigate to Schedule view
+      navigate('/schedule');
     } catch (err: unknown) {
       console.error('Onboarding failed:', err);
       toast.error('Onboarding failed', {

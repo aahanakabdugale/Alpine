@@ -48,8 +48,13 @@ export function DevToolsDock() {
     return () => clearInterval(interval);
   }, [fetchStatus, activeProfile?.id]);
 
-  const notifyStateChange = () => {
+  const notifyStateChange = (newDate?: string) => {
     window.dispatchEvent(new CustomEvent('alpine:dev-time-travel'));
+    if (newDate) {
+      window.dispatchEvent(
+        new CustomEvent('alpine:dev-date-changed', { detail: { date: newDate } })
+      );
+    }
     fetchStatus();
   };
 
@@ -63,7 +68,7 @@ export function DevToolsDock() {
       toast.success('Simulated date updated', {
         description: `Set to ${targetDate}. ${res.data.auto_completed_units || 0} units auto-completed.`,
       });
-      notifyStateChange();
+      notifyStateChange(targetDate);
     } catch (err: unknown) {
       toast.error('Time travel failed', {
         description: err instanceof Error ? err.message : 'Unknown error',
@@ -151,6 +156,7 @@ export function DevToolsDock() {
 
   const displayDate = status?.simulated_date || '2026-07-15';
   const isOverrun = (status?.overrun_units_count || 0) > 0;
+  const hasProfile = !!status?.student_name;
 
   return (
     <div className="fixed bottom-4 right-4 sm:right-6 z-50 flex flex-col items-end">
@@ -209,8 +215,21 @@ export function DevToolsDock() {
                 </span>
               </div>
             )}
+            {/* Pre-profile notice: shown before any profile is created */}
+            {!hasProfile && (
+              <div className="p-3 rounded-2xl bg-blue-500/10 border border-blue-400/30 flex items-start gap-2.5 text-xs text-blue-700 dark:text-blue-300">
+                <span className="text-base leading-none mt-0.5">⚙</span>
+                <span className="leading-snug">
+                  <strong className="font-bold">Set your semester start date here</strong>, then create a
+                  profile to generate your personalized study plan.
+                  <br />
+                  <span className="text-blue-500/80 dark:text-blue-400/70 text-[11px]">
+                    Action buttons are enabled after profile creation.
+                  </span>
+                </span>
+              </div>
+            )}
 
-            {/* Section 1: Quick Semester Presets */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-text-muted">
                 <span>Semester Milestones</span>
@@ -260,7 +279,7 @@ export function DevToolsDock() {
                   type="button"
                   disabled={loading}
                   onClick={() => handleTimeTravel(selectedDate)}
-                  className="h-10 px-4 rounded-2xl bg-primary hover:bg-primary-hover text-canvas text-xs font-bold shadow-clay-pill dark:shadow-clay-dark-pill transition-all cursor-pointer shrink-0"
+                  className="h-10 px-4 rounded-2xl bg-primary hover:bg-primary-hover text-canvas text-xs font-bold shadow-clay-pill dark:shadow-clay-dark-pill transition-all cursor-pointer shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Set Date
                 </button>
@@ -285,25 +304,25 @@ export function DevToolsDock() {
                 <span className="text-[11px] font-bold text-text-muted shrink-0">Fast Forward:</span>
                 <button
                   type="button"
-                  disabled={loading}
+                  disabled={loading || !hasProfile}
                   onClick={() => handleSkipDays(1)}
-                  className="flex-1 py-1.5 px-2 rounded-xl bg-surface hover:bg-surface-hover border border-border text-xs font-bold text-text-primary text-center transition-all cursor-pointer shadow-sm"
+                  className="flex-1 py-1.5 px-2 rounded-xl bg-surface hover:bg-surface-hover border border-border text-xs font-bold text-text-primary text-center transition-all cursor-pointer shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   +1 Day
                 </button>
                 <button
                   type="button"
-                  disabled={loading}
+                  disabled={loading || !hasProfile}
                   onClick={() => handleSkipDays(7)}
-                  className="flex-1 py-1.5 px-2 rounded-xl bg-surface hover:bg-surface-hover border border-border text-xs font-bold text-text-primary text-center transition-all cursor-pointer shadow-sm"
+                  className="flex-1 py-1.5 px-2 rounded-xl bg-surface hover:bg-surface-hover border border-border text-xs font-bold text-text-primary text-center transition-all cursor-pointer shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   +7 Days
                 </button>
                 <button
                   type="button"
-                  disabled={loading}
+                  disabled={loading || !hasProfile}
                   onClick={() => handleSkipDays(14)}
-                  className="flex-1 py-1.5 px-2 rounded-xl bg-surface hover:bg-surface-hover border border-border text-xs font-bold text-text-primary text-center transition-all cursor-pointer shadow-sm"
+                  className="flex-1 py-1.5 px-2 rounded-xl bg-surface hover:bg-surface-hover border border-border text-xs font-bold text-text-primary text-center transition-all cursor-pointer shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   +14 Days
                 </button>
@@ -318,9 +337,9 @@ export function DevToolsDock() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   type="button"
-                  disabled={loading}
+                  disabled={loading || !hasProfile}
                   onClick={() => handleSimulateSlacking(14)}
-                  className="flex items-center justify-center gap-2 p-2.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-bold transition-all cursor-pointer text-left"
+                  className="flex items-center justify-center gap-2 p-2.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-bold transition-all cursor-pointer text-left disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                   <span>Simulate 2-Week Slack</span>
@@ -328,9 +347,9 @@ export function DevToolsDock() {
 
                 <button
                   type="button"
-                  disabled={loading}
+                  disabled={loading || !hasProfile}
                   onClick={handleResetSemester}
-                  className="flex items-center justify-center gap-2 p-2.5 rounded-2xl bg-surface-soft hover:bg-surface-hover border border-border text-text-primary text-xs font-bold transition-all cursor-pointer"
+                  className="flex items-center justify-center gap-2 p-2.5 rounded-2xl bg-surface-soft hover:bg-surface-hover border border-border text-text-primary text-xs font-bold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <RotateCcw className="w-3.5 h-3.5 text-primary shrink-0" />
                   <span>Reset to Semester Start</span>

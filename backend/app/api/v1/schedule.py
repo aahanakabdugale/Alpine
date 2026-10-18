@@ -6,7 +6,7 @@ Schedule endpoints: calendar range view, today's dashboard, check-in, and studen
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
@@ -116,6 +116,9 @@ def get_schedule(
     return _hydrate_schedule_entries(entries, db)
 
 
+EXAM_BUFFER_DAYS = 3  # Days before exam to enforce review-only for that subject
+
+
 @router.get("/schedule/today", response_model=TodayScheduleResponse)
 def get_today_schedule(
     student: models.Student = Depends(get_active_student),
@@ -124,22 +127,89 @@ def get_today_schedule(
     """
     Returns today's scheduled tasks, target study hours, available capacity,
     and upcoming exam countdowns for the active student profile.
+
+    Exam-day rules:
+    - On the day of an exam: only show tasks for that exam's subject
+      (uncompleted topics first, then reviews).
+    - Within EXAM_BUFFER_DAYS before an exam: only show review/uncompleted
+      tasks for that subject on the buffer day (the solver already handles
+      new learning exclusion via CP-SAT constraints; this endpoint reflects it).
     """
     today = get_today()
 
-    # Query entries for today
-    today_entries = (
+    enrolled_subject_ids = [e.subject_id for e in student.enrollments]
+
+    # ── Determine exam-day and buffer subjects ────────────────────────────────
+    upcoming_exams = (
+        db.query(models.ExamDate)
+        .filter(
+            models.ExamDate.subject_id.in_(enrolled_subject_ids),
+            models.ExamDate.exam_date >= today,
+            models.ExamDate.exam_date <= today + timedelta(days=EXAM_BUFFER_DAYS),
+        )
+        .all()
+    )
+
+    # Subjects with exam exactly today → exclusive filter
+    exam_subjects_today = {e.subject_id for e in upcoming_exams if e.exam_date == today}
+    # Subjects in buffer window (exam in 1-3 days) → review-only preference
+    buffer_subjects = {e.subject_id for e in upcoming_exams if e.exam_date > today}
+
+    # ── Fetch today's scheduled entries ──────────────────────────────────────
+    today_entries_query = (
         db.query(models.ScheduleEntry)
         .filter(
             models.ScheduleEntry.student_id == student.id,
             models.ScheduleEntry.scheduled_date == today,
         )
-        .all()
     )
+
+    if exam_subjects_today:
+        # On exam day: only tasks belonging to exam subject(s)
+        # Resolve topic IDs for those subjects
+        exam_topic_ids = (
+            db.query(models.Topic.id)
+            .join(models.Module, models.Topic.module_id == models.Module.id)
+            .filter(models.Module.subject_id.in_(exam_subjects_today))
+            .all()
+        )
+        exam_topic_id_set = {row[0] for row in exam_topic_ids}
+        today_entries = today_entries_query.filter(
+            models.ScheduleEntry.topic_id.in_(exam_topic_id_set)
+        ).all()
+
+        # If the solver didn't place any of this subject's tasks today,
+        # synthesize review entries from done topics of that subject
+        if not today_entries:
+            done_entries_for_subject = (
+                db.query(models.ScheduleEntry)
+                .filter(
+                    models.ScheduleEntry.student_id == student.id,
+                    models.ScheduleEntry.status == "done",
+                    models.ScheduleEntry.topic_id.in_(exam_topic_id_set),
+                    models.ScheduleEntry.is_review == False,  # noqa: E712 - original learning entries only
+                )
+                .order_by(models.ScheduleEntry.scheduled_date.desc())
+                .limit(5)
+                .all()
+            )
+            # Return done entries styled as virtual review reminder
+            # (mark is_review=True for hydration display)
+            for entry in done_entries_for_subject:
+                entry.is_review = True
+            today_entries = done_entries_for_subject
+    else:
+        today_entries = today_entries_query.all()
+
     tasks = _hydrate_schedule_entries(today_entries, db)
     scheduled_hours = sum(t.est_hours or 0.0 for t in tasks)
 
-    # Student available hours for today's day of week (0 = Monday, ..., 6 = Sunday)
+    # ── If buffer subjects exist, annotate tasks to flag review priority ─────
+    # The CP-SAT solver already avoids placing new learning in buffer window,
+    # so today_entries will already be reviews for buffer subjects if properly scheduled.
+    # We surface this as metadata via is_exam_buffer flag (future enhancement).
+
+    # ── Student available hours for today (day-of-week) ──────────────────────
     dow = today.weekday()
     avail_row = (
         db.query(models.Availability)
@@ -148,8 +218,7 @@ def get_today_schedule(
     )
     available_hours = avail_row.hours_available if avail_row else 0.0
 
-    # Exam countdowns for enrolled subjects
-    enrolled_subject_ids = [e.subject_id for e in student.enrollments]
+    # ── Exam countdowns for enrolled subjects ────────────────────────────────
     exam_rows = (
         db.query(models.ExamDate)
         .filter(
@@ -172,7 +241,7 @@ def get_today_schedule(
         for e in exam_rows
     ]
 
-    # Academic Triage Check: count how many planned entries spill past their subject's end-sem date
+    # ── Academic Triage: count planned entries past end-sem ──────────────────
     all_planned = (
         db.query(models.ScheduleEntry)
         .filter(
@@ -185,12 +254,13 @@ def get_today_schedule(
     overrun_count = sum(1 for p in hydrated_planned if p.is_overrun)
     triage_warning = overrun_count > 0
     triage_message = (
-        f"Academic Triage Alert: {overrun_count} syllabus units cannot be completed before your End-Semester exams at your current pace. Please increase your weekly study availability."
+        f"Academic Triage Alert: {overrun_count} syllabus units cannot be completed before "
+        "your End-Semester exams at your current pace. Please increase your weekly study availability."
         if triage_warning
         else None
     )
 
-    # Real FSRS Memory Health calculation based on student TopicConfidence records
+    # ── FSRS Memory Health ───────────────────────────────────────────────────
     confidence_records = (
         db.query(models.TopicConfidence)
         .filter(models.TopicConfidence.student_id == student.id)

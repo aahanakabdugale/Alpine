@@ -8,13 +8,14 @@ import {
   Search,
   RefreshCw,
   BookMarked,
+  AlertCircle,
 } from 'lucide-react';
 import { motion, type Variants } from 'framer-motion';
 import { apiClient } from '@/lib/api';
 import { useStudentProfiles } from '@/hooks/useStudentProfiles';
-import type { ScheduleEntryOut, TodayScheduleResponse, ExamCountdownItem } from '@/types';
+import type { ScheduleEntryOut, TodayScheduleResponse, ExamCountdownItem, DevStatusResponse } from '@/types';
 
-type FilterTab = 'all' | 'planned' | 'done' | 'review';
+type FilterTab = 'all' | 'planned' | 'done' | 'review' | 'missed';
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -48,18 +49,26 @@ export function TimelineCalendar() {
   const [filterTab, setFilterTab] = useState<FilterTab>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  const [simulatedToday, setSimulatedToday] = useState<string>(
+    () => new Date().toISOString().slice(0, 10)
+  );
+
   const fetchScheduleData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [schedRes, todayRes] = await Promise.all([
+      const [schedRes, todayRes, devRes] = await Promise.all([
         apiClient.get<ScheduleEntryOut[]>('/schedule'),
         apiClient.get<TodayScheduleResponse>('/schedule/today').catch(() => null),
+        apiClient.get<DevStatusResponse>('/dev/status').catch(() => null),
       ]);
 
       setEntries(schedRes.data);
       if (todayRes && todayRes.data) {
         setExams(todayRes.data.exam_countdowns || []);
+      }
+      if (devRes && devRes.data?.simulated_date) {
+        setSimulatedToday(devRes.data.simulated_date);
       }
     } catch (err: unknown) {
       console.error('Failed to fetch schedule:', err);
@@ -74,12 +83,16 @@ export function TimelineCalendar() {
     Promise.all([
       apiClient.get<ScheduleEntryOut[]>('/schedule'),
       apiClient.get<TodayScheduleResponse>('/schedule/today').catch(() => null),
+      apiClient.get<DevStatusResponse>('/dev/status').catch(() => null),
     ])
-      .then(([schedRes, todayRes]) => {
+      .then(([schedRes, todayRes, devRes]) => {
         if (!cancelled) {
           setEntries(schedRes.data);
           if (todayRes && todayRes.data) {
             setExams(todayRes.data.exam_countdowns || []);
+          }
+          if (devRes && devRes.data?.simulated_date) {
+            setSimulatedToday(devRes.data.simulated_date);
           }
           setLoading(false);
         }
@@ -102,9 +115,13 @@ export function TimelineCalendar() {
     };
     window.addEventListener('alpine:profile-switch', handleUpdate);
     window.addEventListener('alpine:dev-time-travel', handleUpdate);
+    window.addEventListener('alpine:dev-date-changed', handleUpdate);
+    window.addEventListener('alpine:schedule-updated', handleUpdate);
     return () => {
       window.removeEventListener('alpine:profile-switch', handleUpdate);
       window.removeEventListener('alpine:dev-time-travel', handleUpdate);
+      window.removeEventListener('alpine:dev-date-changed', handleUpdate);
+      window.removeEventListener('alpine:schedule-updated', handleUpdate);
     };
   }, [fetchScheduleData]);
 
@@ -126,6 +143,7 @@ export function TimelineCalendar() {
       if (filterTab === 'planned' && entry.status !== 'planned') return false;
       if (filterTab === 'done' && entry.status !== 'done') return false;
       if (filterTab === 'review' && !entry.is_review) return false;
+      if (filterTab === 'missed' && (!entry.is_overdue || entry.status === 'done')) return false;
 
       // Search query
       if (searchQuery.trim()) {
@@ -169,9 +187,10 @@ export function TimelineCalendar() {
   const completedCount = entries.filter((e) => e.status === 'done').length;
   const plannedCount = entries.filter((e) => e.status === 'planned').length;
   const reviewCount = entries.filter((e) => e.is_review).length;
+  const missedCount = entries.filter((e) => e.is_overdue && e.status !== 'done').length;
   const totalHours = entries.reduce((acc, curr) => acc + (curr.est_hours || 1.0), 0);
 
-  const todayIso = new Date().toISOString().slice(0, 10);
+  const todayIso = simulatedToday || new Date().toISOString().slice(0, 10);
 
   return (
     <div className="space-y-8">
@@ -262,6 +281,7 @@ export function TimelineCalendar() {
               { id: 'planned', label: `Planned (${plannedCount})` },
               { id: 'done', label: `Completed (${completedCount})` },
               { id: 'review', label: `Reviews (${reviewCount})` },
+              { id: 'missed', label: `Missed (${missedCount})` },
             ] as const
           ).map((tab) => (
             <button
@@ -467,6 +487,14 @@ export function TimelineCalendar() {
                                 <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/40 flex items-center gap-1 animate-pulse">
                                   <Flag className="w-2.5 h-2.5" />
                                   Past End-Sem
+                                </span>
+                              )}
+
+                              {/* Overdue / Missed Tag */}
+                              {!isDone && item.is_overdue && !item.is_overrun && (
+                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-600 dark:text-orange-400 border border-orange-500/40 flex items-center gap-1">
+                                  <AlertCircle className="w-2.5 h-2.5" />
+                                  Missed
                                 </span>
                               )}
 

@@ -197,12 +197,20 @@ def build_schedule(
         for d in range(horizon_days):
             assigned[(i, d)] = bools[d]
 
-    # Map exam days to their specific subjects
+    # Map exam days to their specific subjects, and build buffer window mappings
     exam_subjects_by_day: dict[int, set[str]] = {}
+    # pre_exam_buffer_by_day[d] = set of subject_ids whose exam is within BUFFER days after d
+    PRE_EXAM_BUFFER_DAYS = 3
+    pre_exam_buffer_by_day: dict[int, set[str]] = {}
     for e in request.exam_dates:
         exam_d = (e.exam_date - request.start_date).days
         if 0 <= exam_d < horizon_days:
             exam_subjects_by_day.setdefault(exam_d, set()).add(e.subject_id)
+        # Mark the 3 days before the exam as buffer days for this subject
+        for buf in range(1, PRE_EXAM_BUFFER_DAYS + 1):
+            buf_d = exam_d - buf
+            if 0 <= buf_d < horizon_days:
+                pre_exam_buffer_by_day.setdefault(buf_d, set()).add(e.subject_id)
 
     # 5. Knapsack Constraints (Hours, Cognitive Load, Interleaving, and Exam Day Exclusivity)
     distinct_subjects = {u.subject_id for u in units}
@@ -222,6 +230,15 @@ def build_schedule(
             allowed_subjects = exam_subjects_by_day[d]
             for i in range(n):
                 if units[i].subject_id not in allowed_subjects:
+                    model.Add(assigned[(i, d)] == 0)
+
+        # Constraint B2: Pre-Exam Buffer (3 days before exam, no new learning for that subject)
+        # Review units (is_review=True) for the buffer subject are still allowed.
+        if d in pre_exam_buffer_by_day:
+            buffer_subjects_for_day = pre_exam_buffer_by_day[d]
+            for i in range(n):
+                unit = units[i]
+                if unit.subject_id in buffer_subjects_for_day and not unit.is_review:
                     model.Add(assigned[(i, d)] == 0)
 
         # Constraint C: Daily Cognitive Load (Difficulty Cap)
