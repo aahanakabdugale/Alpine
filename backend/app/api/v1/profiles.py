@@ -29,6 +29,8 @@ class ProfileCreateRequest(BaseModel):
     honors_id: Optional[str] = Field(default=None, description="Optional chosen honors subject ID")
     availability: Optional[list[DailyAvailabilityItem]] = Field(default=None, description="7-day weekly availability matrix")
     start_date: Optional[date] = Field(default=None, description="Semester or study start date")
+    archetype: Optional[str] = Field(default="steady_average", description="Student learning archetype")
+    historical_pace_factor: Optional[float] = Field(default=1.0, description="Pace multiplier")
 
 
 class ProfileResponse(BaseModel):
@@ -91,6 +93,8 @@ def create_profile(payload: ProfileCreateRequest, db: Session = Depends(get_db))
     new_student = models.Student(
         id=student_id,
         display_name=display_name,
+        archetype=payload.archetype or "steady_average",
+        historical_pace_factor=payload.historical_pace_factor or 1.0,
     )
     db.add(new_student)
     db.flush()

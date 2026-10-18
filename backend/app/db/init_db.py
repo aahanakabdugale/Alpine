@@ -93,6 +93,7 @@ def seed_curriculum(db: Session) -> dict[str, models.Subject]:
                         order_index=top_idx + 1,
                         est_difficulty=base_diff,
                         est_hours=base_hours,
+                        topic_type=topic_type,
                     )
                     db.add(topic)
                     db.flush()
@@ -169,7 +170,12 @@ def seed_demo_profiles(db: Session, subject_map: dict[str, models.Subject]):
     # -------------------------------------------------------------------------
     # 1. Profile 1: Alex (Diligent Strong)
     # -------------------------------------------------------------------------
-    alex = models.Student(id="demo-alex", display_name="Alex (Diligent Strong)")
+    alex = models.Student(
+        id="demo-alex",
+        display_name="Alex (Diligent Strong)",
+        archetype="diligent_strong",
+        historical_pace_factor=0.85,
+    )
     db.add(alex)
     db.flush()
 
@@ -213,7 +219,12 @@ def seed_demo_profiles(db: Session, subject_map: dict[str, models.Subject]):
     # -------------------------------------------------------------------------
     # 2. Profile 2: Maya (Steady Average)
     # -------------------------------------------------------------------------
-    maya = models.Student(id="demo-maya", display_name="Maya (Steady Average)")
+    maya = models.Student(
+        id="demo-maya",
+        display_name="Maya (Steady Average)",
+        archetype="steady_average",
+        historical_pace_factor=1.00,
+    )
     db.add(maya)
     db.flush()
 
@@ -230,7 +241,12 @@ def seed_demo_profiles(db: Session, subject_map: dict[str, models.Subject]):
     # -------------------------------------------------------------------------
     # 3. Profile 3: Sam (Crammer)
     # -------------------------------------------------------------------------
-    sam = models.Student(id="demo-sam", display_name="Sam (Crammer)")
+    sam = models.Student(
+        id="demo-sam",
+        display_name="Sam (Crammer)",
+        archetype="crammer",
+        historical_pace_factor=1.15,
+    )
     db.add(sam)
     db.flush()
 

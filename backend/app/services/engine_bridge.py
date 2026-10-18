@@ -24,6 +24,7 @@ from engine.models import (
 )
 from engine.scheduler.adaptive import rebuild_schedule
 from engine.scheduler.baseline import build_schedule
+from database.ml.predict_estimates import estimate_unit_for_student
 
 
 class EngineBridge:
@@ -66,6 +67,14 @@ class EngineBridge:
         for dep in dependencies:
             topic_dep_map.setdefault(dep.topic_id, []).append(dep.depends_on_topic_id)
 
+        # Student learning profile & confidence ratings for ML personalization
+        student_archetype = getattr(student, "archetype", "steady_average") or "steady_average"
+        student_pace = getattr(student, "historical_pace_factor", 1.0) or 1.0
+        conf_map = {
+            (c.topic_id, c.subtopic_id): c.confidence_rating
+            for c in student.confidence_ratings
+        }
+
         # Map to find the leaf unit of each topic (for prerequisite resolution)
         topic_last_leaf_map: dict[str, str] = {}
         units: list[SchedulableUnit] = []
@@ -75,10 +84,30 @@ class EngineBridge:
             for top in sorted_topics:
                 # Prerequisite topic IDs
                 prereq_topic_ids = topic_dep_map.get(top.id, [])
+                prereq_depth = len(prereq_topic_ids)
+                topic_type = getattr(top, "topic_type", "concept") or "concept"
+                topic_conf = conf_map.get((top.id, None), 3)
+
+                # Predict personalized duration and difficulty using Random Forest ML model
+                try:
+                    pred_hours, pred_diff = estimate_unit_for_student(
+                        student_archetype=student_archetype,
+                        historical_pace_factor=student_pace,
+                        initial_confidence=topic_conf,
+                        topic_type=topic_type,
+                        prereq_depth=prereq_depth,
+                        curriculum_base_hours=top.est_hours,
+                        curriculum_base_diff=top.est_difficulty,
+                    )
+                except Exception:
+                    pred_hours, pred_diff = top.est_hours, top.est_difficulty
 
                 if top.subtopics:
                     sorted_subtopics = sorted(top.subtopics, key=lambda s: s.order_index)
                     prev_sub_unit_id: str | None = None
+                    sub_count = len(sorted_subtopics)
+                    hours_per_sub = max(0.25, round(pred_hours / sub_count, 2))
+                    sub_diff = max(1, pred_diff - 1)
 
                     for idx, sub in enumerate(sorted_subtopics):
                         unit_id = f"subtopic:{sub.id}"
@@ -102,8 +131,8 @@ class EngineBridge:
                                 module_id=mod.id,
                                 name=sub.name,
                                 order_index=sub.order_index,
-                                est_difficulty=max(1, top.est_difficulty - 1),
-                                est_hours=sub.est_hours,
+                                est_difficulty=sub_diff,
+                                est_hours=hours_per_sub,
                                 depends_on=deps,
                                 assessment_phase=AssessmentPhase(mod.assessment_phase),
                             )
@@ -128,8 +157,8 @@ class EngineBridge:
                             module_id=mod.id,
                             name=top.name,
                             order_index=top.order_index,
-                            est_difficulty=top.est_difficulty,
-                            est_hours=top.est_hours,
+                            est_difficulty=pred_diff,
+                            est_hours=pred_hours,
                             depends_on=deps,
                             assessment_phase=AssessmentPhase(mod.assessment_phase),
                         )

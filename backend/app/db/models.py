@@ -79,6 +79,7 @@ class Topic(Base):
         nullable=False,
     )
     est_hours = Column(Float, default=1.0, nullable=False)
+    topic_type = Column(String, default="concept", nullable=False)
 
     module = relationship("Module", back_populates="topics")
     subtopics = relationship("Subtopic", back_populates="topic", cascade="all, delete-orphan")
@@ -112,6 +113,8 @@ class Student(Base):
 
     id = Column(String, primary_key=True, default=gen_uuid)
     display_name = Column(String, nullable=False)
+    archetype = Column(String, default="steady_average", nullable=False)
+    historical_pace_factor = Column(Float, default=1.0, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
     enrollments = relationship("StudentSubject", back_populates="student", cascade="all, delete-orphan")
